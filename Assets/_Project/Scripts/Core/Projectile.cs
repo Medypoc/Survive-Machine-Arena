@@ -5,30 +5,42 @@ public class Projectile : MonoBehaviour
     private Rigidbody2D rb;
     private Vector3 startPosition;
     
-    // ДОБАВЛЕНО: Эти переменные хранят данные внутри пули после вылета
+    // Эти переменные хранят данные внутри пули после вылета
     private float damage; 
     private float maxRange;
 
+    /// <summary>
+    /// Метод инициализации пули при выстреле
+    /// </summary>
     public void Launch(float dmg, float spd, float range)
     {
+        // 1. Находим Rigidbody2D
         rb = GetComponent<Rigidbody2D>();
         
-        // Сохраняем полученные данные в переменные класса
+        // 2. Сохраняем данные из WeaponDataSO в память пули
         damage = dmg; 
         maxRange = range;
         startPosition = transform.position;
 
+        // 3. Даем пуле физический импульс
         if (rb != null)
         {
+            // transform.up — это направление ствола (ось Y)
             rb.linearVelocity = transform.up * spd;
         }
+        else
+        {
+            Debug.LogError($"На префабе {gameObject.name} отсутствует компонент Rigidbody2D!");
+        }
         
-        Destroy(gameObject, 10f); // Резервный таймер
+        // Резервный таймер жизни (на случай если пуля улетит в бесконечность и не встретит преград)
+        Destroy(gameObject, 10f); 
     }
 
     void Update()
     {
-        float distanceTraveled = Vector2.Distance(startPosition, transform.position);
+        // Логика ограничения дальности стрельбы
+        float distanceTraveled = Vector3.Distance(startPosition, transform.position);
 
         if (distanceTraveled >= maxRange)
         {
@@ -38,15 +50,18 @@ public class Projectile : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // Теперь переменная 'damage' существует в текущем контексте
-        Health targetHealth = other.GetComponent<Health>();
+        // 1. Самая важная проверка: если это игрок — ВООБЩЕ ничего не делаем
+        if (other.CompareTag("Player")) return;
 
+        // 2. Если попали во что-то другое (врага, стену)
+        Health targetHealth = other.GetComponentInParent<Health>();
         if (targetHealth != null)
         {
             targetHealth.TakeDamage(damage);
         }
 
-        if (!other.CompareTag("Player") && !other.CompareTag("Projectile"))
+        // 3. Уничтожаем пулю, если это не другая пуля
+        if (other.GetComponent<Projectile>() == null)
         {
             Destroy(gameObject);
         }
