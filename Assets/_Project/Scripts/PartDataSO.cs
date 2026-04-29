@@ -1,12 +1,16 @@
 using UnityEngine;
 
-// Этот класс не будет создаваться напрямую, он нужен как основа для других
+// Базовый класс для всех запчастей
 public abstract class PartDataSO : ScriptableObject
 {
     [Header("Visuals")]
     public string partName;
-    public Sprite partSprite; // Изображение детали
+    public Sprite partSprite; 
 
     [Header("Physical Stats")]
-    public float weight; // Вес, который влияет на расход топлива
+    public float weight; 
+
+    [Header("Compatibility")]
+    // Ссылаемся на перечисление, которое находится в скрипте VehicleStats
+    public VehicleStats.VehicleBase compatibleBase; 
 }

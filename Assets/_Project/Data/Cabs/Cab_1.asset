@@ -12,12 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d738895d24031a4ea5bf7eceeb4c4fe, type: 3}
   m_Name: Cab_1
   m_EditorClassIdentifier: Assembly-CSharp::CabDataSO
-  partName: 
-  partSprite: {fileID: 0}
-  weight: 0
+  partName: Cab_1
+  partSprite: {fileID: 4066575266696072346, guid: 1896ee6f6038bc8469dd0792059d50b7, type: 3}
+  weight: 200
+  compatibleBase: 1
   baseSpeed: 10
-  baseAcceleration: 5
-  steeringSpeed: 200
+  baseAcceleration: 3
+  steeringSpeed: 150
   additionalHP: 50
   armor: 0.2
-  weaponRotationLimit: 180
+  weaponRotationLimit: 150

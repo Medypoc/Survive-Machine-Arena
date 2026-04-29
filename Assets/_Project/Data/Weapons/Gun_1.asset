@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0b319081d35095488c32d620704c054, type: 3}
   m_Name: Gun_1
   m_EditorClassIdentifier: Assembly-CSharp::WeaponDataSO
-  weaponName: 
-  weaponSprite: {fileID: 0}
+  weaponName: Gun_1
+  weaponSprite: {fileID: -7246279706790848750, guid: 9d4696f47da02f54f8b9735eb8d7bfa9, type: 3}
   damage: 10
   fireRate: 0.5
   bulletSpeed: 20
   rotationSpeed: 5
   bulletPrefab: {fileID: 0}
-  fireSound: {fileID: 0}
+  fireSound: {fileID: 8300000, guid: 16a245229ac3a4347ad9c21cd09efa44, type: 3}

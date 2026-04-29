@@ -12,10 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62da12612568bc04ba324b5ea0db6cf1, type: 3}
   m_Name: Body_1
   m_EditorClassIdentifier: Assembly-CSharp::BodyDataSO
-  partName: 
-  partSprite: {fileID: 0}
-  weight: 0
+  partName: Body_1
+  partSprite: {fileID: -4577983551176239345, guid: 03b46f7283b591444a32e7ef2e0130cb, type: 3}
+  weight: 800
+  compatibleBase: 1
   additionalHP: 100
   armor: 0.1
   fuelCapacity: 50
-  inventorySlots: 8
+  cabinAnchorPoint: {x: 0, y: 0}
+  inventorySlots: 6

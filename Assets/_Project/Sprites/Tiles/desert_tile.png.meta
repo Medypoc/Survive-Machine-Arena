@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 1896ee6f6038bc8469dd0792059d50b7
+guid: 43c6dacd91236444face38af3a1580ef
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 4066575266696072346
-    second: Cab_1_0
+      213: -5721297502571214063
+    second: desert_tile_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 400
+  spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -75,7 +75,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 2
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Cab_1_0
+      name: desert_tile_0
       rect:
         serializedVersion: 2
-        x: 284
-        y: 435
-        width: 1480
-        height: 1179
+        x: 0
+        y: 0
+        width: 1024
+        height: 1024
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: a9c0fcfc8a06f6830800000000000000
-      internalID: 4066575266696072346
+      spriteID: 11bc9e0fb3ed990b0800000000000000
+      internalID: -5721297502571214063
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Cab_1_0: 4066575266696072346
+      desert_tile_0: -5721297502571214063
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

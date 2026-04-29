@@ -10,6 +10,6 @@ public class CabDataSO : PartDataSO
 
     [Header("Combat & Defense")]
     public int additionalHP = 50;
-    public float armor = 0.2f; // 20% поглощения урона
-    public float weaponRotationLimit = 180f; // Ограничение поворота пушки
+    public float armor = 0.2f; 
+    public float weaponRotationLimit = 180f; 
 }
