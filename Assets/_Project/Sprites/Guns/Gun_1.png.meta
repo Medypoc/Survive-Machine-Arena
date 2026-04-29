@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 9d4696f47da02f54f8b9735eb8d7bfa9
+guid: 577dfd8ce3eb93748aebc4fd15edcb87
 TextureImporter:
   internalIDToNameTable:
   - first:
@@ -116,10 +116,10 @@ TextureImporter:
       name: Gun_1_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 133
-        width: 511
-        height: 246
+        x: 93
+        y: 0
+        width: 246
+        height: 510
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
