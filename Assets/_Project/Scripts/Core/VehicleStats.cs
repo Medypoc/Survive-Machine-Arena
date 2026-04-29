@@ -1,28 +1,28 @@
-using UnityEngine;
+using UnityEngine; // Это решает проблему с [Header] и SpriteRenderer
 
 public class VehicleStats : MonoBehaviour
 {
-    // Перечисление для проверки совместимости деталей
     public enum VehicleBase { Courier, HeavyTruck, Interceptor }
 
-    [Header("Configuration & Compatibility")]
+    [Header("Configuration")]
     public VehicleBase currentBase = VehicleBase.Courier;
     public CabDataSO cabData;
     public BodyDataSO bodyData;
+    public WeaponDataSO weaponData;
 
-    [Header("Visual Slots")]
-    public SpriteRenderer bodyRenderer;
-    public SpriteRenderer cabinRenderer;
-    public Transform cabinSocket; // Дочерний объект-пустышка для позиции кабины
+    [Header("Anchor Slots")]
+    public VehiclePartSlot bodySlot;
+    public VehiclePartSlot cabinSlot;
+    public VehiclePartSlot weaponSlot;
 
-    [Header("Live Stats")]
-    public float currentHP;
-    public float maxHP;
-    public float totalWeight;
+    [Header("Live Stats (Required by CarController)")]
     public float maxSpeed;
     public float acceleration;
-    public float currentFuel;
+    public float totalWeight;
+    public float maxHP;
+    public float currentHP;
     public float fuelCapacity;
+    public float currentFuel;
 
     void Start()
     {
@@ -31,55 +31,42 @@ public class VehicleStats : MonoBehaviour
 
     public void InitializeVehicle()
     {
-        // Проверка на наличие данных
-        if (cabData == null || bodyData == null)
+        if (cabData == null || bodyData == null || weaponData == null)
         {
-            Debug.LogError("VehicleStats: Кабина или Кузов не назначены!");
+            Debug.LogError("VehicleStats: Назначьте все ScriptableObjects!");
             return;
         }
 
-        // Проверка совместимости базы (Твоя идея)
-        if (cabData.compatibleBase != currentBase || bodyData.compatibleBase != currentBase)
-        {
-            Debug.LogWarning("Внимание: Детали не подходят к базе " + currentBase);
-        }
-
-        // 1. Расчет характеристик
-        maxHP = cabData.additionalHP + bodyData.additionalHP;
-        currentHP = maxHP;
-        totalWeight = cabData.weight + bodyData.weight;
+        // 1. Расчет характеристик (Математика)
         maxSpeed = cabData.baseSpeed;
         acceleration = cabData.baseAcceleration;
+        totalWeight = cabData.weight + bodyData.weight;
+        maxHP = cabData.additionalHP + bodyData.additionalHP;
+        currentHP = maxHP;
         fuelCapacity = bodyData.fuelCapacity;
         currentFuel = fuelCapacity;
 
-        // 2. Визуальная сборка
-        if (bodyRenderer != null) bodyRenderer.sprite = bodyData.partSprite;
-        if (cabinRenderer != null) cabinRenderer.sprite = cabData.partSprite;
+        // 2. Позиционирование АНКЕРОВ (Логических гнезд)
+        if (cabinSlot != null)
+            cabinSlot.transform.localPosition = (Vector3)bodyData.cabinAnchorPoint;
 
-        // 3. Установка кабины в точку крепления (Якорь), прописанную в данных кузова
-        if (cabinSocket != null)
-        {
-            cabinSocket.localPosition = bodyData.cabinAnchorPoint;
-        }
+        // 3. Обновление ВИЗУАЛА (Спрайтов) через слоты
+        if (bodySlot != null) bodySlot.UpdatePart(bodyData.partSprite, 10);
+        if (cabinSlot != null) cabinSlot.UpdatePart(cabData.partSprite, 20);
+        if (weaponSlot != null) weaponSlot.UpdatePart(weaponData.weaponSprite, 30);
 
-        // 4. Обновление колайдеров под новые спрайты
+        // 4. Обновление физических границ
         UpdateColliders();
     }
 
     void UpdateColliders()
     {
-        // Удаляем старые PolygonCollider2D и добавляем новые, чтобы они облегали новые спрайты
-        if (bodyRenderer != null)
+        // Профессиональный подход: обновляем коллайдеры на тех объектах, где есть спрайты
+        if (bodySlot != null && bodySlot.visualRenderer != null)
         {
-            Destroy(bodyRenderer.GetComponent<PolygonCollider2D>());
-            bodyRenderer.gameObject.AddComponent<PolygonCollider2D>();
-        }
-        
-        if (cabinRenderer != null)
-        {
-            Destroy(cabinRenderer.GetComponent<PolygonCollider2D>());
-            cabinRenderer.gameObject.AddComponent<PolygonCollider2D>();
+            var col = bodySlot.visualRenderer.gameObject.GetComponent<PolygonCollider2D>() ?? 
+                      bodySlot.visualRenderer.gameObject.AddComponent<PolygonCollider2D>();
+            // Здесь можно добавить логику пересчета путей коллайдера, если нужно
         }
     }
 }
