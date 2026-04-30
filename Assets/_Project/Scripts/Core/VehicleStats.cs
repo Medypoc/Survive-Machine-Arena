@@ -10,9 +10,15 @@ public class VehicleStats : MonoBehaviour
     [SerializeField] private CabDataSO _cabData;
     [SerializeField] private WeaponDataSO _weaponData;
 
+    // Эти свойства нужны твоему AIController и другим скриптам
     public BodyDataSO Body => _bodyData;
     public CabDataSO Cab => _cabData;
     public WeaponDataSO Weapon => _weaponData;
+
+    [Header("Visual Slots")]
+    [SerializeField] private SpriteRenderer _bodyRenderer;
+    [SerializeField] private SpriteRenderer _cabRenderer;
+    [SerializeField] private SpriteRenderer _weaponRenderer;
 
     [Header("Calculated Stats")]
     public float Acceleration { get; private set; }
@@ -22,25 +28,19 @@ public class VehicleStats : MonoBehaviour
     
     public float DamageMultiplier { get; private set; } = 1f;
 
-    // Множители статов
     private float _hpMult = 1f;
     private float _speedMult = 1f;
-
-    // Кешируем компонент здоровья для оптимизации
     private Health _healthComponent;
 
     public event Action OnStatsChanged;
 
     private void Awake()
     {
-        // Получаем ссылку на компонент один раз при создании объекта
         _healthComponent = GetComponent<Health>();
     }
 
     private void Start() 
     {
-        // Вызываем первичный пересчет в Start. 
-        // Это гарантирует, что Health.Awake() уже отработал и не перезапишет наши статы.
         RefreshStats();
     }
 
@@ -62,13 +62,16 @@ public class VehicleStats : MonoBehaviour
 
     public void RefreshStats()
     {
-        // 1. Сбрасываем статы до базовых перед новым расчетом
+        // Обновляем спрайты
+        UpdateVisuals();
+
+        // Базовые значения
         Acceleration = 0; 
         SteeringSpeed = 0; 
         Armor = 0; 
-        MaxHealth = 100; // Базовое здоровье "голого" шасси
+        MaxHealth = 100;
 
-        // 2. Суммируем статы от кабины
+        // Считаем статы кабины
         if (_cabData != null)
         {
             Acceleration += _cabData.baseAcceleration;
@@ -77,33 +80,35 @@ public class VehicleStats : MonoBehaviour
             MaxHealth += _cabData.additionalHP;
         }
 
-        // TODO: Добавь сюда статы от других модулей, если они у них есть в скриптаблах.
-        // Пример того, как это должно выглядеть:
-        // if (_bodyData != null) { Armor += _bodyData.additionalArmor; }
-        // if (_weaponData != null) { Acceleration -= _weaponData.weightPenalty; }
-
-        // 3. Применяем множители (баффы, дебаффы, сложность) ко всем собранным статам
+        // Применяем коэффициенты
         Acceleration *= _speedMult;
         SteeringSpeed *= _speedMult;
         MaxHealth = Mathf.RoundToInt(MaxHealth * _hpMult);
 
-        // 4. Безопасно обновляем здоровье, сохраняя процент ранений
+        // Синхронизируем с компонентом Health
         if (_healthComponent != null) 
         {
-            // Вычисляем процент текущего здоровья (от 0.0 до 1.0)
-            // Если maxHealth еще 0 (самый первый старт), считаем что машина полностью цела (1f)
             float healthPercentage = _healthComponent.maxHealth > 0 
                 ? (float)_healthComponent.currentHealth / _healthComponent.maxHealth 
                 : 1f;
             
-            // Задаем новый максимум
             _healthComponent.maxHealth = MaxHealth;
-            
-            // Восстанавливаем текущее здоровье в том же процентном соотношении
             _healthComponent.currentHealth = Mathf.RoundToInt(MaxHealth * healthPercentage); 
         }
 
-        // 5. Оповещаем другие системы (например, UI полоски здоровья)
         OnStatsChanged?.Invoke();
+    }
+
+    private void UpdateVisuals()
+    {
+        // Используем partSprite, так как он определен в базовом классе PartDataSO
+        if (_cabData != null && _cabRenderer != null) 
+            _cabRenderer.sprite = _cabData.partSprite;
+
+        if (_bodyData != null && _bodyRenderer != null) 
+            _bodyRenderer.sprite = _bodyData.partSprite;
+
+        if (_weaponData != null && _weaponRenderer != null) 
+            _weaponRenderer.sprite = _weaponData.partSprite;
     }
 }
