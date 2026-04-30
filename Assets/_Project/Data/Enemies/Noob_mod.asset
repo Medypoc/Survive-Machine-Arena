@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Noob_mod
   m_EditorClassIdentifier: Assembly-CSharp::SurviveArena.Data.EnemyModifierSO
   modifierName: Noob
-  healthMultiplier: 0.5
+  healthMultiplier: 0.3
   speedMultiplier: 1
-  damageMultiplier: 0.2
+  damageMultiplier: 0.1
   visualTint: {r: 0, g: 1, b: 0.1698674, a: 1}

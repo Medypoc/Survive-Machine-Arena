@@ -94,6 +94,9 @@ public class VehicleStats : MonoBehaviour
             
             _healthComponent.maxHealth = MaxHealth;
             _healthComponent.currentHealth = Mathf.RoundToInt(MaxHealth * healthPercentage); 
+            
+            // Исправленная строка:
+            _healthComponent.NotifyHealthChanged(); 
         }
 
         OnStatsChanged?.Invoke();
