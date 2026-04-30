@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 62da12612568bc04ba324b5ea0db6cf1, type: 3}
-  m_Name: Body_2
+  m_Name: Body_3
   m_EditorClassIdentifier: Assembly-CSharp::SurviveArena.Data.BodyDataSO
   partName: Body_2
   partSprite: {fileID: 21300000, guid: 6b6eef099b3c24e40a4c78aa7a4853af, type: 3}

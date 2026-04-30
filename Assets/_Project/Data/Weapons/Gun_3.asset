@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d0b319081d35095488c32d620704c054, type: 3}
-  m_Name: Gun_1
+  m_Name: Gun_3
   m_EditorClassIdentifier: Assembly-CSharp::WeaponDataSO
-  partName: Gun_01
-  partSprite: {fileID: 21300000, guid: 577dfd8ce3eb93748aebc4fd15edcb87, type: 3}
-  vehicleClass: 1
+  partName: 
+  partSprite: {fileID: 21300000, guid: 1d9e072e42471f04d98bc04a15e14910, type: 3}
+  vehicleClass: 0
   damage: 10
-  fireRate: 300
+  fireRate: 600
   range: 15
   bulletSpeed: 30
-  rotationSpeed: 100
+  rotationSpeed: 90
   bulletPrefab: {fileID: 3229579587623005231, guid: 717e00a8b83e2674e81b5ed4a4480cb8, type: 3}
   fireSound: {fileID: 8300000, guid: 16a245229ac3a4347ad9c21cd09efa44, type: 3}

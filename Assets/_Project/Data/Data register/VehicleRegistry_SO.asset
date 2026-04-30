@@ -20,10 +20,13 @@ MonoBehaviour:
   - vehicleClass: 1
     availableBodies:
     - {fileID: 11400000, guid: e5f7b29325637cb44820c924dc3579a5, type: 2}
+    - {fileID: 11400000, guid: 338f39d4047785347bccabf505477364, type: 2}
     availableCabs:
     - {fileID: 11400000, guid: 0ad4b9a5577cd814f810c3018e80a4c3, type: 2}
+    - {fileID: 11400000, guid: c93feb3e39654cc4db96f0bbe934a625, type: 2}
     availableWeapons:
     - {fileID: 11400000, guid: 617755639a4a4914486b5a8c50189793, type: 2}
+    - {fileID: 11400000, guid: 4a39dc0a682576347a1c8cdb532f2264, type: 2}
   - vehicleClass: 2
     availableBodies: []
     availableCabs: []

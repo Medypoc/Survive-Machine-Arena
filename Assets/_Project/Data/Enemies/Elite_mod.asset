@@ -15,5 +15,5 @@ MonoBehaviour:
   modifierName: Elite
   healthMultiplier: 1.5
   speedMultiplier: 1.2
-  damageMultiplier: 1.2
+  damageMultiplier: 0.5
   visualTint: {r: 1, g: 0, b: 0, a: 1}
