@@ -1,10 +1,13 @@
 using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody2D), typeof(VehicleStats))]
+[RequireComponent(typeof(Rigidbody2D))]
 public class VehicleMovement : MonoBehaviour
 {
     private Rigidbody2D _rb;
     private VehicleStats _stats;
+
+    [Header("Grip Settings")]
+    [Range(0, 1)] public float driftFactor = 0.95f; // Чем ниже, тем меньше заносит
 
     void Awake()
     {
@@ -12,19 +15,31 @@ public class VehicleMovement : MonoBehaviour
         _stats = GetComponent<VehicleStats>();
     }
 
+    void FixedUpdate()
+    {
+        ApplyLateralFriction();
+    }
+
     public void Move(float gasInput, float steerInput)
     {
         if (_stats == null) return;
 
+        // Движение вперед
         _rb.AddForce(transform.up * gasInput * _stats.Acceleration);
 
+        // Поворот (зависит от текущей скорости, чтобы не крутиться на месте)
         float speedFactor = Mathf.Clamp01(_rb.linearVelocity.magnitude / 5f);
         _rb.AddTorque(steerInput * _stats.SteeringSpeed * speedFactor * -1f);
     }
 
-    public void ApplyBrake(float force)
+    private void ApplyLateralFriction()
     {
-        _rb.linearVelocity = Vector2.Lerp(_rb.linearVelocity, Vector2.zero, force * Time.deltaTime);
-        _rb.angularVelocity = Mathf.Lerp(_rb.angularVelocity, 0, force * Time.deltaTime);
+        // Вычисляем "боковую" скорость (насколько нас несет вправо или влево)
+        Vector2 forwardVelocity = transform.up * Vector2.Dot(_rb.linearVelocity, transform.up);
+        Vector2 rightVelocity = transform.right * Vector2.Dot(_rb.linearVelocity, transform.right);
+
+        // Умножаем боковую скорость на фактор дрифта. 
+        // Если driftFactor = 0, боковая скорость полностью гасится каждый кадр.
+        _rb.linearVelocity = forwardVelocity + rightVelocity * driftFactor;
     }
 }

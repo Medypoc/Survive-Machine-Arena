@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8721614243267785291}
   - component: {fileID: 910288954885855218}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Cab_Slot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -60,7 +60,7 @@ GameObject:
   - component: {fileID: 6081071652100778800}
   - component: {fileID: 8774500721137998782}
   - component: {fileID: -6256077429805146780}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: EnemyDefault
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -100,7 +100,7 @@ Rigidbody2D:
   m_UseAutoMass: 0
   m_Mass: 1
   m_LinearDamping: 1
-  m_AngularDamping: 0
+  m_AngularDamping: 3
   m_GravityScale: 0
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -160,6 +160,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ed9f2f7c62cd96449107fb89b933cb2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VehicleMovement
+  driftFactor: 0.95
 --- !u!114 &-6256077429805146780
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -172,8 +173,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4fed4d6daf0d34a4196867e86f3ff5da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIController
-  _attackRange: 10
-  _stopDistance: 5
+  _playerTag: Player
+  _targetRefreshInterval: 0.5
+  _orbitRadius: 10
+  _orbitThreshold: 2
+  _inwardPull: 0.2
+  _aiDriftFactor: 0.1
+  _brakingAngleThreshold: 60
+  _steeringAngleForMaxInput: 45
+  _deadzoneAngle: 2
+  _shootAngleMargin: 15
+  _switchDirectionIntervalRange: {x: 5, y: 10}
 --- !u!1 &4569218520770275981
 GameObject:
   m_ObjectHideFlags: 0
@@ -184,7 +194,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2096992035862146753}
   - component: {fileID: 323663152045396588}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Shadow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -276,7 +286,7 @@ GameObject:
   - component: {fileID: 5164141232814117500}
   - component: {fileID: 8907241930251236201}
   - component: {fileID: 6851936370091170047}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Weapon_Slot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -336,7 +346,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6656359397456925193}
   - component: {fileID: 1624385451199315175}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Weapon_Visual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -427,7 +437,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3470465037287315436}
   - component: {fileID: 1258331611572167358}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Body_Slot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -474,7 +484,7 @@ GameObject:
   - component: {fileID: 6439073147359118830}
   - component: {fileID: 7538187749419372920}
   - component: {fileID: 1640587062566062526}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Body_Visual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -726,7 +736,7 @@ GameObject:
   - component: {fileID: 4002541505732080143}
   - component: {fileID: 2527967780153308126}
   - component: {fileID: 818138194216250804}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Cab_Visual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1044,7 +1054,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6456311480411658693}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: FIrePoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
