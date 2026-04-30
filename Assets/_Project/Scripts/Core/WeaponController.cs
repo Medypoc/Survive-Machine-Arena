@@ -17,32 +17,43 @@ public class WeaponController : MonoBehaviour
 
     void Update()
     {
+        // 1. Проверка необходимых компонентов
         if (_stats == null || _stats.Weapon == null) return;
 
-        Vector2 targetDir;
+        Vector2 direction;
 
+        // 2. Определение цели: приоритет у назначенного Transform (для ИИ), 
+        // затем проверка на игрока (для мыши)
         if (target != null)
         {
-            // Логика для ИИ: направление на цель
-            targetDir = target.position - transform.position;
+            direction = (Vector2)target.position - (Vector2)transform.position;
         }
         else if (transform.root.CompareTag("Player"))
         {
-            // Логика для игрока: направление на мышь
             Vector3 mousePos = _cam.ScreenToWorldPoint(Input.mousePosition);
-            targetDir = mousePos - transform.position;
+            direction = (Vector2)mousePos - (Vector2)transform.position;
         }
-        else return;
+        else 
+        {
+            // Если цели нет и это не игрок — ничего не делаем
+            return;
+        }
 
-        float targetWorldAngle = Mathf.Atan2(targetDir.y, targetDir.x) * Mathf.Rad2Deg - 90f;
-        
+        // 3. Вычисление целевого угла
+        // Atan2 возвращает угол в радианах, переводим в градусы. 
+        // -90f нужно, если спрайт пушки изначально смотрит вверх.
+        float targetWorldAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90f;
         Quaternion targetRotation = Quaternion.Euler(0, 0, targetWorldAngle);
+
+        // 4. Плавный поворот в сторону цели
+        // Используем rotationSpeed из настроек оружия
         transform.rotation = Quaternion.RotateTowards(
             transform.rotation, 
             targetRotation, 
             _stats.Weapon.rotationSpeed * Time.deltaTime
         );
 
+        // 5. Ограничение угла поворота относительно кабины
         ApplyRotationLimit();
     }
 

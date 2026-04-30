@@ -14,10 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BodyDataSO
   partName: Body_1
   partSprite: {fileID: -4577983551176239345, guid: 03b46f7283b591444a32e7ef2e0130cb, type: 3}
-  weight: 800
-  compatibleBase: 1
-  additionalHP: 100
-  armor: 0.1
-  fuelCapacity: 50
-  cabinAnchorPoint: {x: 0, y: 3}
-  inventorySlots: 6
+  vehicleClass: 1
+  weightPenalty: 800
+  extraStorageSlots: 0

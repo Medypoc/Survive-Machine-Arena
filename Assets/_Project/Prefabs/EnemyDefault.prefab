@@ -173,17 +173,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4fed4d6daf0d34a4196867e86f3ff5da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIController
-  _playerTag: Player
-  _targetRefreshInterval: 0.5
-  _orbitRadius: 10
-  _orbitThreshold: 2
-  _inwardPull: 0.2
-  _aiDriftFactor: 0.1
-  _brakingAngleThreshold: 60
-  _steeringAngleForMaxInput: 45
-  _deadzoneAngle: 2
-  _shootAngleMargin: 15
-  _switchDirectionIntervalRange: {x: 5, y: 10}
+  _currentState: 0
+  _attackRange: 12
+  _safetyDistance: 6
+  _steeringSensitivity: 0.5
+  _minGasForTurn: 0.4
 --- !u!1 &4569218520770275981
 GameObject:
   m_ObjectHideFlags: 0
