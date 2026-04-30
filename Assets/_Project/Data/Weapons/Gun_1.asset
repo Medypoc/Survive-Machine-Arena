@@ -15,8 +15,9 @@ MonoBehaviour:
   weaponName: Gun_1
   weaponSprite: {fileID: -7246279706790848750, guid: 9d4696f47da02f54f8b9735eb8d7bfa9, type: 3}
   damage: 10
-  fireRate: 0.5
-  bulletSpeed: 20
-  rotationSpeed: 5
-  bulletPrefab: {fileID: 0}
+  fireRate: 150
+  bulletSpeed: 30
+  rotationSpeed: 20
+  range: 15
+  bulletPrefab: {fileID: 3229579587623005231, guid: 717e00a8b83e2674e81b5ed4a4480cb8, type: 3}
   fireSound: {fileID: 8300000, guid: 16a245229ac3a4347ad9c21cd09efa44, type: 3}

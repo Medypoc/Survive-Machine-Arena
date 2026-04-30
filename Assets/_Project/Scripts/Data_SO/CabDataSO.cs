@@ -1,4 +1,6 @@
 using UnityEngine;
+using SurviveArena.Core;
+using SurviveArena.Data;
 
 [CreateAssetMenu(fileName = "NewCab", menuName = "SurviveArena/Cab Data")]
 public class CabDataSO : PartDataSO

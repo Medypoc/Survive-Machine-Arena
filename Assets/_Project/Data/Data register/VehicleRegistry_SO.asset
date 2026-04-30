@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98a8b9c115ba67744bfbe0dc1889c6ff, type: 3}
+  m_Name: VehicleRegistry_SO
+  m_EditorClassIdentifier: Assembly-CSharp::VehicleRegistry_SO
+  classes:
+  - vehicleClass: 0
+    availableBodies: []
+    availableCabs: []
+    availableWeapons: []
+  - vehicleClass: 1
+    availableBodies:
+    - {fileID: 11400000, guid: e5f7b29325637cb44820c924dc3579a5, type: 2}
+    availableCabs:
+    - {fileID: 11400000, guid: 0ad4b9a5577cd814f810c3018e80a4c3, type: 2}
+    availableWeapons:
+    - {fileID: 11400000, guid: 617755639a4a4914486b5a8c50189793, type: 2}
+  - vehicleClass: 2
+    availableBodies: []
+    availableCabs: []
+    availableWeapons: []

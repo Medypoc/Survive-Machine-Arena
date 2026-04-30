@@ -18,7 +18,7 @@ MonoBehaviour:
   compatibleBase: 1
   baseSpeed: 10
   baseAcceleration: 3
-  steeringSpeed: 150
+  steeringSpeed: 10
   additionalHP: 50
   armor: 0.2
   weaponRotationLimit: 150

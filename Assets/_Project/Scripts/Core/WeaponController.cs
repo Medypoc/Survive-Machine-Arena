@@ -1,94 +1,61 @@
 using UnityEngine;
+using SurviveArena.Data;
 
 public class WeaponController : MonoBehaviour
 {
-    private VehicleStats stats;
-    private Transform vehicleTransform;
+    private VehicleStats _stats;
+    private Camera _cam;
+    
+    [Header("AI Settings")]
+    public Transform target; // Если заполнено, пушка следит за целью, а не за мышью
 
     void Start()
     {
-        // Ищем VehicleStats в родителе (Player)
-        stats = GetComponentInParent<VehicleStats>();
-        
-        if (stats != null)
-        {
-            vehicleTransform = stats.transform;
-        }
-        else
-        {
-            Debug.LogError("WeaponController: Не найден компонент VehicleStats на родителе!");
-        }
+        _stats = GetComponentInParent<VehicleStats>();
+        _cam = Camera.main;
     }
 
-    // Update — это стандартный метод Unity, он должен вызывать RotateWeapon
     void Update()
     {
-        if (stats == null || vehicleTransform == null) return;
+        if (_stats == null || _stats.Weapon == null) return;
 
-        RotateWeapon();
-    }
+        Vector2 targetDir;
 
-    // Теперь это обычный метод класса, а не "локальная функция"
-    void RotateWeapon()
-    {
-        // 1. Получаем позицию мыши в мире
-        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        mouseWorldPos.z = 0;
+        if (target != null)
+        {
+            // Логика для ИИ: направление на цель
+            targetDir = target.position - transform.position;
+        }
+        else if (transform.root.CompareTag("Player"))
+        {
+            // Логика для игрока: направление на мышь
+            Vector3 mousePos = _cam.ScreenToWorldPoint(Input.mousePosition);
+            targetDir = mousePos - transform.position;
+        }
+        else return;
 
-        // 2. Переводим позицию мыши в ЛОКАЛЬНЫЕ координаты игрока
-        // Это позволяет игнорировать текущий разворот машины при расчете лимитов
-        Vector3 localMousePos = vehicleTransform.InverseTransformPoint(mouseWorldPos);
-
-        // 3. Считаем угол между "носом" машины (Vector2.up) и направлением на мышь
-        // SignedAngle возвращает значения от -180 до 180
-        float targetAngle = Vector2.SignedAngle(Vector2.up, localMousePos);
-
-        // 4. Ограничиваем угол согласно статам кабины
-        // Если лимит 90 градусов, то пушка будет ходить от -45 до +45
-        float limit = stats.cabData.weaponRotationLimit / 2f;
-        float clampedAngle = Mathf.Clamp(targetAngle, -limit, limit);
-
-        // 5. Плавное вращение (RotateTowards)
-        // Вращаем текущий объект (Weapon_Slot) относительно родителя
-        Quaternion targetRotation = Quaternion.Euler(0, 0, clampedAngle);
+        float targetWorldAngle = Mathf.Atan2(targetDir.y, targetDir.x) * Mathf.Rad2Deg - 90f;
         
-        float rotationSpeed = stats.weaponData.rotationSpeed * 10f; // Коэффициент скорости
-        
-        transform.localRotation = Quaternion.RotateTowards(
-            transform.localRotation, 
+        Quaternion targetRotation = Quaternion.Euler(0, 0, targetWorldAngle);
+        transform.rotation = Quaternion.RotateTowards(
+            transform.rotation, 
             targetRotation, 
-            rotationSpeed * Time.deltaTime
+            _stats.Weapon.rotationSpeed * Time.deltaTime
         );
+
+        ApplyRotationLimit();
     }
 
-    private void OnDrawGizmos()
+    private void ApplyRotationLimit()
     {
-        if (stats == null || stats.cabData == null || vehicleTransform == null) return;
+        if (_stats.Cab == null || _stats.Cab.weaponRotationLimit >= 360f) return;
 
-        Vector3 origin = transform.position;
-        float limit = stats.cabData.weaponRotationLimit / 2f;
-        Vector3 baseDirection = vehicleTransform.up;
+        float localAngle = transform.localEulerAngles.z;
+        if (localAngle > 180) localAngle -= 360;
 
-        // 1. ОТРИСОВКА ГРАНИЦ (Желтые линии)
-        Gizmos.color = Color.yellow;
-        Vector3 leftLimitDir = Quaternion.Euler(0, 0, limit) * baseDirection;
-        Vector3 rightLimitDir = Quaternion.Euler(0, 0, -limit) * baseDirection;
+        float halfLimit = _stats.Cab.weaponRotationLimit * 0.5f;
+        float clampedAngle = Mathf.Clamp(localAngle, -halfLimit, halfLimit);
 
-        Gizmos.DrawRay(origin, leftLimitDir * 2f); 
-        Gizmos.DrawRay(origin, rightLimitDir * 2f);
-
-        // 2. ОТРИСОВКА ЛУЧА ПРИЦЕЛИВАНИЯ (Яркий длинный луч)
-        // Используем transform.up, так как это текущий поворот пушки
-        Gizmos.color = new Color(1f, 1f, 0f, 1f); // Насыщенный желтый
-        Gizmos.DrawRay(origin, transform.up * 5f); // Длина 5 метров
-
-        // 3. ОТРИСОВКА ТОЧКИ ПОПАДАНИЯ (Маленькая сфера на конце луча)
-        Gizmos.DrawWireSphere(origin + transform.up * 5f, 0.1f);
-
-        // Бонус: Сектор обстрела
-#if UNITY_EDITOR
-        UnityEditor.Handles.color = new Color(1, 1, 0, 0.05f);
-        UnityEditor.Handles.DrawSolidArc(origin, Vector3.forward, leftLimitDir, -limit * 2, 2f);
-#endif
+        transform.localRotation = Quaternion.Euler(0, 0, clampedAngle);
     }
 }

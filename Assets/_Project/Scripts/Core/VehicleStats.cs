@@ -1,72 +1,52 @@
-using UnityEngine; // Это решает проблему с [Header] и SpriteRenderer
+using UnityEngine;
+using System;
+using SurviveArena.Core;
+using SurviveArena.Data;
 
 public class VehicleStats : MonoBehaviour
 {
-    public enum VehicleBase { Courier, HeavyTruck, Interceptor }
+    [Header("Modules")]
+    [SerializeField] private BodyDataSO _bodyData;
+    [SerializeField] private CabDataSO _cabData;
+    [SerializeField] private WeaponDataSO _weaponData;
 
-    [Header("Configuration")]
-    public VehicleBase currentBase = VehicleBase.Courier;
-    public CabDataSO cabData;
-    public BodyDataSO bodyData;
-    public WeaponDataSO weaponData;
+    public BodyDataSO Body => _bodyData;
+    public CabDataSO Cab => _cabData;
+    public WeaponDataSO Weapon => _weaponData;
 
-    [Header("Anchor Slots")]
-    public VehiclePartSlot bodySlot;
-    public VehiclePartSlot cabinSlot;
-    public VehiclePartSlot weaponSlot;
+    [Header("Calculated Stats")]
+    public float Acceleration { get; private set; }
+    public float SteeringSpeed { get; private set; }
+    public float Armor { get; private set; }
+    public int MaxHealth { get; private set; }
 
-    [Header("Live Stats (Required by CarController)")]
-    public float maxSpeed;
-    public float acceleration;
-    public float totalWeight;
-    public float maxHP;
-    public float currentHP;
-    public float fuelCapacity;
-    public float currentFuel;
+    public event Action OnStatsChanged;
 
-    void Start()
+    private void Awake() => RefreshStats();
+
+    public void LoadModules(BodyDataSO body, CabDataSO cab, WeaponDataSO weapon)
     {
-        InitializeVehicle();
+        _bodyData = body;
+        _cabData = cab;
+        _weaponData = weapon;
+        RefreshStats();
     }
 
-    public void InitializeVehicle()
+    public void RefreshStats()
     {
-        if (cabData == null || bodyData == null || weaponData == null)
+        Acceleration = 0; SteeringSpeed = 0; Armor = 0; MaxHealth = 100;
+
+        if (_cabData != null)
         {
-            Debug.LogError("VehicleStats: Назначьте все ScriptableObjects!");
-            return;
+            Acceleration = _cabData.baseAcceleration;
+            SteeringSpeed = _cabData.steeringSpeed;
+            Armor = _cabData.armor;
+            MaxHealth += _cabData.additionalHP;
         }
 
-        // 1. Расчет характеристик (Математика)
-        maxSpeed = cabData.baseSpeed;
-        acceleration = cabData.baseAcceleration;
-        totalWeight = cabData.weight + bodyData.weight;
-        maxHP = cabData.additionalHP + bodyData.additionalHP;
-        currentHP = maxHP;
-        fuelCapacity = bodyData.fuelCapacity;
-        currentFuel = fuelCapacity;
+        var health = GetComponent<Health>();
+        if (health != null) health.maxHealth = MaxHealth;
 
-        // 2. Позиционирование АНКЕРОВ (Логических гнезд)
-        if (cabinSlot != null)
-            cabinSlot.transform.localPosition = (Vector3)bodyData.cabinAnchorPoint;
-
-        // 3. Обновление ВИЗУАЛА (Спрайтов) через слоты
-        if (bodySlot != null) bodySlot.UpdatePart(bodyData.partSprite, 10);
-        if (cabinSlot != null) cabinSlot.UpdatePart(cabData.partSprite, 20);
-        if (weaponSlot != null) weaponSlot.UpdatePart(weaponData.weaponSprite, 30);
-
-        // 4. Обновление физических границ
-        UpdateColliders();
-    }
-
-    void UpdateColliders()
-    {
-        // Профессиональный подход: обновляем коллайдеры на тех объектах, где есть спрайты
-        if (bodySlot != null && bodySlot.visualRenderer != null)
-        {
-            var col = bodySlot.visualRenderer.gameObject.GetComponent<PolygonCollider2D>() ?? 
-                      bodySlot.visualRenderer.gameObject.AddComponent<PolygonCollider2D>();
-            // Здесь можно добавить логику пересчета путей коллайдера, если нужно
-        }
+        OnStatsChanged?.Invoke();
     }
 }

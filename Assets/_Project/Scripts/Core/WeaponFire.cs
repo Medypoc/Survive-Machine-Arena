@@ -1,49 +1,56 @@
 using UnityEngine;
 
-public class WeaponFire: MonoBehaviour
+public class WeaponFire : MonoBehaviour
 {
-    private VehicleStats stats;
+    private VehicleStats _stats;
     
     [Header("References")]
-    public GameObject bulletPrefab;
-    public Transform firePoint; // Пустой объект на кончике ствола
-
-    private float nextFireTime;
+    public Transform firePoint;
+    
+    private float _nextFireTime;
 
     void Start()
     {
-        stats = GetComponentInParent<VehicleStats>();
+        // Ищем Stats в родительском объекте машины
+        _stats = GetComponentInParent<VehicleStats>();
     }
 
     void Update()
     {
-        if (stats == null || stats.weaponData == null) return;
-
-        // Проверка нажатия кнопки и кулдауна (Rate of Fire)
-        if (Input.GetMouseButton(0) && Time.time >= nextFireTime)
+        // Если это игрок, он управляет стрельбой сам (ЛКМ)
+        // Если это ИИ, метод Shoot() будет вызываться из AIController
+        if (transform.root.CompareTag("Player"))
         {
-            Shoot();
-            // Рассчитываем время до следующего выстрела
-            // Если fireRate = 600, то это 10 выстрелов в сек (интервал 0.1с)
-            nextFireTime = Time.time + 60f / stats.weaponData.fireRate;
+            if (Input.GetMouseButton(0))
+            {
+                Shoot();
+            }
         }
     }
 
-    void Shoot()
-{
-    if (bulletPrefab == null || firePoint == null) return;
-
-    GameObject bulletObj = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
-    Projectile proj = bulletObj.GetComponent<Projectile>();
-
-    if (proj != null)
+    public void Shoot()
     {
-        // Передаем ТРИ параметра: урон, скорость и ДАЛЬНОСТЬ
-        proj.Launch(
-            stats.weaponData.damage, 
-            stats.weaponData.bulletSpeed, 
-            stats.weaponData.range
-        );
+        if (_stats == null || _stats.Weapon == null) return;
+
+        if (Time.time >= _nextFireTime)
+        {
+            // Создаем снаряд
+            GameObject bullet = Instantiate(_stats.Weapon.bulletPrefab, firePoint.position, firePoint.rotation);
+            
+            Projectile projectileScript = bullet.GetComponent<Projectile>();
+            if (projectileScript != null)
+            {
+                projectileScript.Launch(_stats.Weapon.damage, _stats.Weapon.bulletSpeed, _stats.Weapon.range);
+            }
+
+            // ИСПРАВЛЕННАЯ ЛОГИКА:
+            // Если FireRate — это выстрелы в минуту (например, 300)
+            float delayBetweenShots = 60f / _stats.Weapon.fireRate; 
+            
+            // Если же ты хочешь выстрелы в секунду (например, 5 выстрелов в сек), используй:
+            // float delayBetweenShots = 1f / _stats.Weapon.fireRate;
+
+            _nextFireTime = Time.time + delayBetweenShots;
+        }
     }
-}
 }
