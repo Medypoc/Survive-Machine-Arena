@@ -1,12 +1,17 @@
 using UnityEngine;
-using SurviveArena.Core; // Подключаем пространство имен для VehicleClass
+using SurviveArena.Core;
+using SurviveArena.Data;
 
 public class EnemySpawner : MonoBehaviour
 {
     [Header("Setup")]
-    public GameObject enemyPrefab;    
-    public VehicleRegistry_SO registry; // ИСПРАВЛЕНО: добавлено подчеркивание _SO
-    public VehicleClass spawnClass;     // ИСПРАВЛЕНО: заменено VehicleStats.VehicleBase на VehicleClass
+    public GameObject enemyPrefab;
+    public VehicleRegistry_SO registry;
+    public VehicleClass spawnClass;
+
+    [Header("Global Modifier")]
+    // Назначь здесь EnemyModifierSO, чтобы усилить всех врагов из этого спавнера
+    public EnemyModifierSO globalModifier;
 
     [Header("Settings")]
     public float spawnInterval = 5f;
@@ -27,29 +32,41 @@ public class EnemySpawner : MonoBehaviour
     {
         if (registry == null || enemyPrefab == null)
         {
-            Debug.LogError("[EnemySpawner] Не назначен префаб или Реестр!");
+            Debug.LogError("[EnemySpawner] Missing Registry or Prefab!");
             return;
         }
 
-        // 1. Получаем случайные детали из реестра
+        // Получаем случайный набор частей
         registry.GetRandomParts(spawnClass, out var body, out var cab, out var weapon);
 
-        // 2. Рассчитываем позицию появления за пределами экрана
+        // Определяем точку появления
         Vector2 spawnPos = (Vector2)transform.position + Random.insideUnitCircle.normalized * spawnRadius;
 
-        // 3. Создаем врага
+        // Создаем объект врага
         GameObject enemyObj = Instantiate(enemyPrefab, spawnPos, Quaternion.identity);
 
-        // 4. Инициализируем его через новый метод в VehicleStats
         VehicleStats enemyStats = enemyObj.GetComponent<VehicleStats>();
         if (enemyStats != null)
         {
-            // Передаем модули. Метод LoadModules сам вызовет RefreshStats
+            // Сначала загружаем базовые части
             enemyStats.LoadModules(body, cab, weapon);
-        }
-        else
-        {
-            Debug.LogWarning($"[EnemySpawner] На префабе {enemyPrefab.name} нет скрипта VehicleStats!");
+
+            // Если на спавнере есть модификатор — применяем его
+            if (globalModifier != null)
+            {
+                enemyStats.ApplyModifiers(
+                    globalModifier.healthMultiplier, 
+                    globalModifier.speedMultiplier, 
+                    globalModifier.damageMultiplier
+                );
+
+                // Покраска врага в цвет модификатора
+                VehicleVisual visual = enemyObj.GetComponent<VehicleVisual>();
+                if (visual != null)
+                {
+                    visual.ApplyTint(globalModifier.visualTint);
+                }
+            }
         }
     }
 }

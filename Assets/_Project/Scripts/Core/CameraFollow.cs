@@ -1,29 +1,55 @@
 using UnityEngine;
 
-public class SimpleCameraFollow : MonoBehaviour
+public class CameraFollow : MonoBehaviour
 {
-    [Header("Target Settings")]
-    public Transform target;        // Твоя машина (Player)
-    public float smoothTime = 0.2f; // Время сглаживания (чем меньше, тем быстрее камера)
-    
-    [Header("Offset Settings")]
-    public Vector3 offset = new Vector3(0, 0, -10f); // Дистанция. Z обязательно -10
+    [Header("Follow Settings")]
+    public Transform target;
+    public float smoothSpeed = 0.125f;
+    public Vector3 offset;
 
-    private Vector3 currentVelocity = Vector3.zero;
+    [Header("Zoom Settings")]
+    [SerializeField] private float _minZoom = 10f;
+    [SerializeField] private float _maxZoom = 20f;
+    [SerializeField] private float _zoomStep = 1f;
 
-    // Используем LateUpdate, чтобы камера двигалась ПОСЛЕ того, как машина переместилась в FixedUpdate
-    void LateUpdate()
+    private Camera _cam;
+
+    private void Awake()
     {
-        if (target == null) return;
+        _cam = GetComponent<Camera>();
+        
+        // Если скрипт висит не на самой камере, пытаемся найти основную
+        if (_cam == null) _cam = Camera.main;
+    }
 
-        // Определяем, где камера ДОЛЖНА быть
-        Vector3 targetPosition = target.position + offset;
+    private void LateUpdate()
+    {
+        // 1. Логика следования за целью
+        if (target != null)
+        {
+            Vector3 desiredPosition = target.position + offset;
+            Vector3 smoothedPosition = Vector3.Lerp(transform.position, desiredPosition, smoothSpeed);
+            transform.position = smoothedPosition;
+        }
 
-        // Плавно перемещаем камеру к цели
-        // SmoothDamp сам рассчитывает ускорение и замедление для идеальной плавности
-        transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref currentVelocity, smoothTime);
+        // 2. Логика зума
+        HandleZoom();
+    }
 
-        // ПРИНУДИТЕЛЬНО фиксируем поворот камеры, чтобы она никогда не вращалась
-        transform.rotation = Quaternion.Euler(0, 0, 0);
+    private void HandleZoom()
+    {
+        float scrollInput = Input.GetAxis("Mouse ScrollWheel");
+
+        if (scrollInput != 0)
+        {
+            // В Unity положительный scroll — это прокрутка "вверх" (приближение)
+            // Для приближения в 2D нужно УМЕНЬШАТЬ orthographicSize
+            float direction = (scrollInput > 0) ? -1f : 1f;
+            
+            float targetSize = _cam.orthographicSize + (direction * _zoomStep);
+
+            // Ограничиваем зум в пределах 10 - 20
+            _cam.orthographicSize = Mathf.Clamp(targetSize, _minZoom, _maxZoom);
+        }
     }
 }

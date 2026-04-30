@@ -16,26 +16,43 @@ public class VehicleVisual : MonoBehaviour
 
     private void OnEnable()
     {
-        if (_stats != null) _stats.OnStatsChanged += UpdateVisuals;
+        if (_stats != null) 
+        {
+            _stats.OnStatsChanged += UpdateVisuals;
+        }
     }
 
     private void OnDisable()
     {
-        if (_stats != null) _stats.OnStatsChanged -= UpdateVisuals;
+        if (_stats != null) 
+        {
+            _stats.OnStatsChanged -= UpdateVisuals;
+        }
     }
 
     public void UpdateVisuals()
     {
         if (_stats == null) return;
 
-        // Теперь везде используем partSprite, так как все модули наследуются от PartDataSO
-        if (_stats.Body != null && bodyRenderer != null) 
-            bodyRenderer.sprite = _stats.Body.partSprite;
+        // Обновляем спрайты на основе данных из PartDataSO
+        if (_stats.Body != null && bodyRenderer != null)
+             bodyRenderer.sprite = _stats.Body.partSprite;
+             
+        if (_stats.Cab != null && cabRenderer != null)
+             cabRenderer.sprite = _stats.Cab.partSprite;
+             
+        if (_stats.Weapon != null && weaponRenderer != null)
+             weaponRenderer.sprite = _stats.Weapon.partSprite;
+    }
 
-        if (_stats.Cab != null && cabRenderer != null) 
-            cabRenderer.sprite = _stats.Cab.partSprite;
-
-        if (_stats.Weapon != null && weaponRenderer != null) 
-            weaponRenderer.sprite = _stats.Weapon.partSprite;
+    /// <summary>
+    /// Применяет цветовой фильтр ко всем визуальным частям машины.
+    /// Используется EnemyModifierHandler для визуального отличия модифицированных врагов.
+    /// </summary>
+    public void ApplyTint(Color tintColor)
+    {
+        if (bodyRenderer != null) bodyRenderer.color = tintColor;
+        if (cabRenderer != null) cabRenderer.color = tintColor;
+        if (weaponRenderer != null) weaponRenderer.color = tintColor;
     }
 }

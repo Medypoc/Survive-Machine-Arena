@@ -56,7 +56,8 @@ public class WeaponFire : MonoBehaviour
         Projectile projectileScript = bullet.GetComponent<Projectile>();
         if (projectileScript != null)
         {
-            projectileScript.Launch(_stats.Weapon.damage, _stats.Weapon.bulletSpeed, _stats.Weapon.range);
+            float finalDamage = _stats.Weapon.damage * _stats.DamageMultiplier;
+            projectileScript.Launch(finalDamage, _stats.Weapon.bulletSpeed, _stats.Weapon.range);
         }
 
         // fireRate is rounds per minute; protect from zero or negative values.
