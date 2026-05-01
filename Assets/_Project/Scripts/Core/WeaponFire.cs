@@ -57,7 +57,9 @@ public class WeaponFire : MonoBehaviour
         if (projectileScript != null)
         {
             float finalDamage = _stats.Weapon.damage * _stats.DamageMultiplier;
-            projectileScript.Launch(finalDamage, _stats.Weapon.bulletSpeed, _stats.Weapon.range);
+            
+            // Передаем transform.root.gameObject — это самый верхний объект машины (хозяин)
+            projectileScript.Launch(finalDamage, _stats.Weapon.bulletSpeed, _stats.Weapon.range, transform.root.gameObject);
         }
 
         // fireRate is rounds per minute; protect from zero or negative values.

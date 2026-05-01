@@ -16,9 +16,10 @@ public class AIController : MonoBehaviour
     private VehicleMovement _movement;
     private VehicleStats _stats;
     private WeaponFire _weaponFire;
-    private WeaponController _weaponController; // ССЫЛКА НА КОНТРОЛЛЕР ПУШКИ
-    private Transform _player;
+    private WeaponController _weaponController; 
     
+    // Теперь цель всегда одна - игрок
+    private Transform _playerTarget; 
     private float _orbitAngle;
 
     private void Awake()
@@ -26,40 +27,42 @@ public class AIController : MonoBehaviour
         _movement = GetComponent<VehicleMovement>();
         _stats = GetComponent<VehicleStats>();
         _weaponFire = GetComponentInChildren<WeaponFire>();
-        // Находим контроллер пушки в дочерних объектах
         _weaponController = GetComponentInChildren<WeaponController>();
     }
 
     private void Start()
     {
-        TryFindPlayer();
-        
         if (_movement != null) _movement.driftFactor = 0.1f;
-    }
-
-    private void TryFindPlayer()
-    {
-        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-        if (playerObj != null) 
-        {
-            _player = playerObj.transform;
-            // ПЕРЕДАЕМ ЦЕЛЬ ПУШКЕ
-            if (_weaponController != null) _weaponController.target = _player;
-        }
+        FindPlayer(); 
     }
 
     private void FixedUpdate()
     {
-        if (_player == null) 
+        // Если игрока нет на сцене или он уничтожен - просто стоим
+        if (_playerTarget == null || !_playerTarget.gameObject.activeInHierarchy) 
         {
-            TryFindPlayer();
-            return;
+            FindPlayer();
+            return; 
         }
 
-        float distance = Vector2.Distance(transform.position, _player.position);
+        float distance = Vector2.Distance(transform.position, _playerTarget.position);
         UpdateAIState(distance);
         ExecuteState();
         HandleCombat(distance);
+    }
+
+    // Поиск игрока по тегу
+    private void FindPlayer()
+    {
+        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerObj != null && playerObj.activeInHierarchy)
+        {
+            _playerTarget = playerObj.transform;
+            if (_weaponController != null) 
+            {
+                _weaponController.target = _playerTarget;
+            }
+        }
     }
 
     private void UpdateAIState(float distance)
@@ -71,17 +74,17 @@ public class AIController : MonoBehaviour
 
     private void ExecuteState()
     {
-        Vector2 targetPos = _player.position;
+        Vector2 targetPos = _playerTarget.position;
 
         switch (_currentState)
         {
             case AIState.Chasing:
-                DriveToPoint(_player.position, 1f);
+                DriveToPoint(_playerTarget.position, 1f);
                 break;
 
             case AIState.Orbiting:
                 _orbitAngle += Time.fixedDeltaTime * 0.5f;
-                targetPos = _player.position + new Vector3(
+                targetPos = _playerTarget.position + new Vector3(
                     Mathf.Cos(_orbitAngle) * _attackRange,
                     Mathf.Sin(_orbitAngle) * _attackRange,
                     0
@@ -90,7 +93,7 @@ public class AIController : MonoBehaviour
                 break;
 
             case AIState.Reversing:
-                DriveToPoint(_player.position, -0.6f);
+                DriveToPoint(_playerTarget.position, -0.6f);
                 break;
         }
     }
@@ -112,14 +115,13 @@ public class AIController : MonoBehaviour
 
     private void HandleCombat(float distance)
     {
-        if (_weaponFire == null || _weaponFire.firePoint == null || distance > _stats.Weapon.range) return;
+        if (_weaponFire == null || _weaponFire.firePoint == null || _stats.Weapon == null || distance > _stats.Weapon.range) return;
 
-        // ВАЖНО: Профессиональный ИИ стреляет только тогда, когда пушка ДЕЙСТВИТЕЛЬНО наведена
-        // Мы проверяем направление FirePoint.up (куда смотрит дуло) относительно игрока
-        Vector2 dirToPlayer = (_player.position - _weaponFire.firePoint.position).normalized;
-        float angleToPlayer = Vector2.Angle(_weaponFire.firePoint.up, dirToPlayer);
+        // ИИ всегда пытается стрелять только в направлении героя
+        Vector2 dirToTarget = (_playerTarget.position - _weaponFire.firePoint.position).normalized;
+        float angleToTarget = Vector2.Angle(_weaponFire.firePoint.up, dirToTarget);
 
-        if (angleToPlayer < 10f) // Допуск 10 градусов для выстрела
+        if (angleToTarget < 10f) 
         {
             _weaponFire.Shoot();
         }
