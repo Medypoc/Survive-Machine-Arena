@@ -31,20 +31,24 @@ public class Projectile : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject == _owner) return;
+        // 1. Проверяем корень объекта, с которым столкнулись
+        GameObject hitRoot = collision.transform.root.gameObject;
 
-        // Ищем Health на самом объекте или на любом из его родителей
-        Health health = collision.GetComponentInParent<Health>(); 
+        // 2. Если корень столкновения — это тот же самый корень владельца, игнорируем
+        if (hitRoot == _owner) return;
+
+        // 3. Ищем здоровье в иерархии того, во что попали
+        Health health = collision.GetComponentInParent<Health>();
         
         if (health != null)
         {
-            Debug.Log($"Попадание в {collision.name}! Урон нанесен.");
-            health.TakeDamage(_damage, _isCritical, _owner);
+            // Передаем урон, статус крита и ссылку на владельца (кто стрелял)
+            health.TakeDamage(_damage, _isCritical, _owner); 
             Destroy(gameObject);
         }
         else if (!collision.isTrigger) 
         {
-            // Если это не триггер и у него нет здоровья (например, стена) — пуля исчезает
+            // Если попали в объект без здоровья (например, стену)
             Destroy(gameObject);
         }
     }

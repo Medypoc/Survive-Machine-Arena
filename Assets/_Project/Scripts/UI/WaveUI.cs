@@ -1,11 +1,12 @@
 using UnityEngine;
 using TMPro;
-using System.Globalization; // Добавляем для работы с точкой
+using System.Globalization;
 
 public class WaveUI : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private EnemySpawner _spawner;
+    // Заменяем EnemySpawner на WaveManager
+    [SerializeField] private WaveManager _waveManager;
     [SerializeField] private TMP_Text _timerText; 
 
     [Header("Settings")]
@@ -15,8 +16,9 @@ public class WaveUI : MonoBehaviour
 
     private void Start()
     {
-        if (_spawner == null)
-            _spawner = FindAnyObjectByType<EnemySpawner>();
+        // Ищем новый менеджер волн, если он не задан в инспекторе
+        if (_waveManager == null)
+            _waveManager = FindAnyObjectByType<WaveManager>();
             
         if (_timerText == null)
             _timerText = GetComponent<TMP_Text>();
@@ -24,30 +26,28 @@ public class WaveUI : MonoBehaviour
 
     private void Update()
     {
-        if (_spawner == null || _timerText == null) return;
+        if (_waveManager == null || _timerText == null) return;
 
-        // Используем IsWaitingForWave из нашего спавнера
-        if (_spawner.IsWaitingForWave && _spawner.CurrentWave < _spawner.TotalWaves)
+        // Используем свойства из WaveManager для отображения таймера
+        if (_waveManager.IsWaitingForWave && _waveManager.CurrentWave < _waveManager.TotalWaves)
         {
             _timerText.enabled = true; 
 
-            // Если до старта меньше 2 секунд и это последняя волна
-            if (_spawner.CurrentWave + 1 == _spawner.TotalWaves && _spawner.TimeRemaining < 2f)
+            // Проверка на финальную волну[cite: 7]
+            if (_waveManager.CurrentWave + 1 == _waveManager.TotalWaves && _waveManager.TimeRemaining < 2f)
             {
                 _timerText.text = finalWaveMessage;
             }
             else
             {
-                // Форматируем число: 
-                // "0.00" — два знака после точки (миллисекунды)
-                // CultureInfo.InvariantCulture — гарантирует точку вместо запятой
-                string timeFormatted = _spawner.TimeRemaining.ToString("0.00", CultureInfo.InvariantCulture);
-                
+                // Форматируем оставшееся время до следующей волны[cite: 7]
+                string timeFormatted = _waveManager.TimeRemaining.ToString("0.00", CultureInfo.InvariantCulture);
                 _timerText.text = messageLabel + timeFormatted;
             }
         }
         else
         {
+            // Скрываем текст, когда волна уже идет или все волны пройдены[cite: 7]
             _timerText.enabled = false; 
         }
     }
