@@ -10,7 +10,6 @@ public class VehicleStats : MonoBehaviour
     [SerializeField] private CabDataSO _cabData;
     [SerializeField] private WeaponDataSO _weaponData;
 
-    // Эти свойства нужны твоему AIController и другим скриптам
     public BodyDataSO Body => _bodyData;
     public CabDataSO Cab => _cabData;
     public WeaponDataSO Weapon => _weaponData;
@@ -25,18 +24,26 @@ public class VehicleStats : MonoBehaviour
     public float SteeringSpeed { get; private set; }
     public float Armor { get; private set; }
     public int MaxHealth { get; private set; }
+    public float TotalWeight { get; private set; }
     
+    // ДОБАВЛЕНО: Свойство для слотов инвентаря
+    public int InventorySlots { get; private set; } 
+
     public float DamageMultiplier { get; private set; } = 1f;
 
     private float _hpMult = 1f;
     private float _speedMult = 1f;
     private Health _healthComponent;
+    
+    // ИСПРАВЛЕНО: Объявляем переменную для топлива, чтобы не было ошибки CS0103
+    private Fuel _fuelComponent; 
 
     public event Action OnStatsChanged;
 
     private void Awake()
     {
         _healthComponent = GetComponent<Health>();
+        _fuelComponent = GetComponent<Fuel>(); // Теперь скрипт знает, что такое _fuelComponent
     }
 
     private void Start() 
@@ -62,30 +69,44 @@ public class VehicleStats : MonoBehaviour
 
     public void RefreshStats()
     {
-        // Обновляем спрайты
         UpdateVisuals();
 
-        // Базовые значения
+        // 1. Базовые значения (сбрасываем перед новым расчетом)
         Acceleration = 0; 
         SteeringSpeed = 0; 
         Armor = 0; 
         MaxHealth = 100;
+        TotalWeight = 0;
+        InventorySlots = 0; 
 
-        // Считаем статы кабины
+        // 2. Считаем статы кабины
         if (_cabData != null)
         {
             Acceleration += _cabData.baseAcceleration;
             SteeringSpeed += _cabData.steeringSpeed;
             Armor += _cabData.armor;
             MaxHealth += _cabData.additionalHP;
+            TotalWeight += _cabData.weight; 
         }
 
-        // Применяем коэффициенты
+        // 3. Считаем статы кузова (ТЕПЕРЬ УЧИТЫВАЕТСЯ ВСЁ)
+        if (_bodyData != null)
+        {
+            Armor += _bodyData.armor;
+            MaxHealth += _bodyData.additionalHP;
+            TotalWeight += _bodyData.weight; 
+            
+            // ВАЖНО: Убедись, что в скрипте BodyDataSO эта переменная называется именно inventorySlots 
+            // (или extraStorageSlots, как было в твоих старых файлах). Если она называется иначе - поменяй тут.
+            InventorySlots += _bodyData.inventorySlots; 
+        }
+
+        // 4. Применяем коэффициенты модификаторов
         Acceleration *= _speedMult;
         SteeringSpeed *= _speedMult;
         MaxHealth = Mathf.RoundToInt(MaxHealth * _hpMult);
 
-        // Синхронизируем с компонентом Health
+        // 5. Синхронизируем здоровье
         if (_healthComponent != null) 
         {
             float healthPercentage = _healthComponent.maxHealth > 0 
@@ -95,8 +116,20 @@ public class VehicleStats : MonoBehaviour
             _healthComponent.maxHealth = MaxHealth;
             _healthComponent.currentHealth = Mathf.RoundToInt(MaxHealth * healthPercentage); 
             
-            // Исправленная строка:
             _healthComponent.NotifyHealthChanged(); 
+        }
+
+        // 6. Синхронизируем топливо (работает только для Игрока)
+        if (_fuelComponent != null && _bodyData != null)
+        {
+            _fuelComponent.maxFuel = _bodyData.fuelCapacity; 
+            
+            if (_fuelComponent.currentFuel <= 0) 
+            {
+                _fuelComponent.currentFuel = _fuelComponent.maxFuel;
+            }
+            
+            _fuelComponent.NotifyFuelChanged();
         }
 
         OnStatsChanged?.Invoke();
@@ -104,7 +137,6 @@ public class VehicleStats : MonoBehaviour
 
     private void UpdateVisuals()
     {
-        // Используем partSprite, так как он определен в базовом классе PartDataSO
         if (_cabData != null && _cabRenderer != null) 
             _cabRenderer.sprite = _cabData.partSprite;
 

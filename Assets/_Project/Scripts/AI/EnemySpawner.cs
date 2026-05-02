@@ -36,6 +36,11 @@ public class EnemySpawner : MonoBehaviour
     // Список для отслеживания живых противников
     private List<GameObject> activeEnemies = new List<GameObject>();
 
+    public bool IsWaitingForWave => isWaitingForNextWave;
+    public float TimeRemaining => Mathf.Max(0, nextWaveTimer - Time.time);
+    public int CurrentWave => currentWave;
+    public int TotalWaves => totalWaves;
+
     void Start()
     {
         // Инициализируем задержку перед самой первой волной
@@ -45,11 +50,23 @@ public class EnemySpawner : MonoBehaviour
 
     void Update()
     {
-        // 1. Очищаем список от мертвых врагов. 
-        // Когда Health.cs делает Destroy(), объект становится null
+        // 1. Очищаем список от мертвых врагов 
         activeEnemies.RemoveAll(item => item == null);
 
-        // 2. Логика ожидания (таймер)
+        // --- НОВЫЙ БЛОК: ПРОВЕРКА ПОБЕДЫ ---
+        // Если все волны вышли, врагов не осталось и мы не ждем новую волну
+        if (currentWave == totalWaves && activeEnemies.Count == 0 && !isWaitingForNextWave)
+        {
+            if (BattleManager.Instance != null)
+            {
+                BattleManager.Instance.OnVictory();
+                this.enabled = false; // Выключаем скрипт, чтобы не вызывать победу многократно
+            }
+            return; // Выходим из Update, так как бой закончен
+        }
+        // ----------------------------------
+
+        // 2. Логика ожидания (таймер)[cite: 3]
         if (isWaitingForNextWave)
         {
             if (Time.time >= nextWaveTimer && currentWave < totalWaves)
@@ -57,10 +74,10 @@ public class EnemySpawner : MonoBehaviour
                 SpawnWave();
             }
         }
-        // 3. Логика боя (ждем, пока умрут враги)
+        // 3. Логика боя (ждем, пока умрут враги)[cite: 3]
         else
         {
-            // Если живых врагов осталось меньше или равно порогу, и волны еще есть
+            // Если живых врагов осталось меньше или равно порогу, и волны еще есть[cite: 3]
             if (activeEnemies.Count <= nextWaveThreshold && currentWave < totalWaves)
             {
                 isWaitingForNextWave = true;
@@ -126,5 +143,12 @@ public class EnemySpawner : MonoBehaviour
                 if (visual != null) visual.ApplyTint(globalModifier.visualTint);
             }
         }
+        EnemyReward rewardSys = enemyObj.GetComponent<EnemyReward>();
+        if (rewardSys != null)
+        {
+            // classBaseXP можешь передавать как константу, например 50 за этот класс машины
+            rewardSys.InitializeRewards(50, body, cab, weapon, globalModifier);
+        }
     }
+
 }

@@ -137,6 +137,7 @@ GameObject:
   - component: {fileID: 8774500721137998782}
   - component: {fileID: -6256077429805146780}
   - component: {fileID: 6920267484505949918}
+  - component: {fileID: 8989393320668581688}
   m_Layer: 9
   m_Name: EnemyDefault
   m_TagString: Enemy
@@ -241,7 +242,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ed9f2f7c62cd96449107fb89b933cb2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VehicleMovement
-  driftFactor: 0.95
+  defaultDriftFactor: 0.95
+  handbrakeDriftFactor: 0.99
+  handbrakeSteerMultiplier: 1.5
+  dashForceMultiplier: 3
+  dashCooldown: 3
 --- !u!114 &-6256077429805146780
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -257,11 +262,6 @@ MonoBehaviour:
   _currentState: 0
   _attackRange: 12
   _safetyDistance: 6
-  _targetSwitchCooldown: 3
-  _targetLayer:
-    serializedVersion: 2
-    m_Bits: 64
-  _steeringSensitivity: 0.5
   _minGasForTurn: 0.4
 --- !u!114 &6920267484505949918
 MonoBehaviour:
@@ -276,6 +276,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SurviveArena.Core.EnemyModifierHandler
   _manualModifier: {fileID: 0}
+--- !u!114 &8989393320668581688
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3897619712883453253}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 234e008076eafc94a872b858a0e15d3f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyReward
 --- !u!1 &4569218520770275981
 GameObject:
   m_ObjectHideFlags: 0

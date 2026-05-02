@@ -48,13 +48,6 @@ public class Projectile : MonoBehaviour
         if (targetHealth != null)
         {
             targetHealth.TakeDamage(damage);
-
-            // РЕАЛИЗАЦИЯ ПРИОРИТЕТА 1: Если попали во врага, он должен захотеть отомстить
-            AIController ai = other.GetComponentInParent<AIController>();
-            if (ai != null && _owner != null)
-            {
-                ai.SetAggressor(_owner.transform);
-            }
         }
 
         Destroy(gameObject);

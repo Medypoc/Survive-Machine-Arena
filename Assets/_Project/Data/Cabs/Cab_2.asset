@@ -18,6 +18,7 @@ MonoBehaviour:
   baseSpeed: 45
   baseAcceleration: 15
   steeringSpeed: 15
-  additionalHP: 75
-  armor: 0.25
+  weight: 200
+  additionalHP: 65
+  armor: 0.15
   weaponRotationLimit: 160

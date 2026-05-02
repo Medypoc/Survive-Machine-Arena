@@ -59,11 +59,35 @@ public class Health : MonoBehaviour
 
     private void Die()
     {
-        // Оригинальная реализация смерти[cite: 1]
         if (isDead) return;
         isDead = true;
-        
+
+        // Оповещаем все системы (звук взрыва, визуальные эффекты)
         onDeath?.Invoke();
-        Destroy(gameObject);
+
+        if (gameObject.CompareTag("Player"))
+        {
+            // Выключаем объект игрока. Это мгновенно скроет машину 
+            // и остановит все скрипты на ней (движение, стрельбу).
+            gameObject.SetActive(false); 
+            
+            if (BattleManager.Instance != null)
+            {
+                BattleManager.Instance.OnPlayerDeath();
+            }
+        }
+        else
+        {
+            // --- ИСПРАВЛЕННЫЙ БЛОК: Выброс награды ---
+            EnemyReward reward = GetComponent<EnemyReward>();
+            if (reward != null)
+            {
+                reward.DropRewards(); // Сообщаем BattleManager'у о заработке
+            }
+            // ----------------------------------------
+
+            // Обязательно удаляем врага со сцены
+            Destroy(gameObject, 0.1f);
+        }
     }
 }

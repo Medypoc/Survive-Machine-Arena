@@ -1,17 +1,27 @@
 using UnityEngine;
 
-namespace SurviveArena.Data
+namespace SurviveArena.Data 
 {
+    // 1. Создаем список уровней сложности
+    public enum DifficultyTier 
+    { 
+        Simple, 
+        Medium, 
+        Hard 
+    }
+
     [CreateAssetMenu(fileName = "NewEnemyModifier", menuName = "SurviveArena/Enemy Modifier")]
     public class EnemyModifierSO : ScriptableObject
     {
-        [Header("Modifier Stats")]
-        public string modifierName = "Elite";
-        public float healthMultiplier = 1.5f;
-        public float speedMultiplier = 1.2f;
-        public float damageMultiplier = 1.2f;
-        
-        [Header("Visuals")]
-        public Color visualTint = Color.red;
+        [Header("Combat Modifiers")]
+        public float healthMultiplier = 1.0f;
+        public float speedMultiplier = 1.0f;
+        public float damageMultiplier = 1.0f;
+        public Color visualTint = Color.white;
+
+        // --- БЛОК ДЛЯ ЭКОНОМИКИ ХРАНИТСЯ ЗДЕСЬ ---
+        [Header("Rewards")]
+        public DifficultyTier tier = DifficultyTier.Simple; 
+        public float xpMultiplier = 1.0f; 
     }
 }

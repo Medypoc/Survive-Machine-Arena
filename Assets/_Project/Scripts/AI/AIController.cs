@@ -10,7 +10,7 @@ public class AIController : MonoBehaviour
     [SerializeField] private float _safetyDistance = 6f;
 
     [Header("Movement Tuning")]
-    [SerializeField] private float _steeringSensitivity = 0.5f; 
+    //[SerializeField] private float _steeringSensitivity = 0.5f; 
     [SerializeField] private float _minGasForTurn = 0.4f;      
 
     private VehicleMovement _movement;
@@ -32,7 +32,7 @@ public class AIController : MonoBehaviour
 
     private void Start()
     {
-        if (_movement != null) _movement.driftFactor = 0.1f;
+        if (_movement != null) _movement.defaultDriftFactor = 0.1f;
         FindPlayer(); 
     }
 
@@ -110,7 +110,7 @@ public class AIController : MonoBehaviour
             gasInput = _minGasForTurn;
         }
 
-        _movement.Move(gasInput, steerInput);
+        _movement.Move(gasInput, steerInput, false);
     }
 
     private void HandleCombat(float distance)

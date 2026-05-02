@@ -9,5 +9,8 @@ namespace SurviveArena.Data
         public string partName;
         public Sprite partSprite;
         public VehicleClass vehicleClass;
+        
+        [Header("Rewards")]
+        public int baseXP = 10; // Базовый опыт за деталь
     }
 }

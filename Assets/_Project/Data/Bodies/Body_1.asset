@@ -15,5 +15,8 @@ MonoBehaviour:
   partName: Body_1
   partSprite: {fileID: 21300000, guid: 03b46f7283b591444a32e7ef2e0130cb, type: 3}
   vehicleClass: 1
-  weightPenalty: 800
-  extraStorageSlots: 4
+  additionalHP: 50
+  inventorySlots: 1
+  armor: 0.1
+  weight: 800
+  fuelCapacity: 100

@@ -1,0 +1,115 @@
+using UnityEngine;
+using TMPro;
+
+public class VehicleStatsDisplayUI : MonoBehaviour
+{
+    private VehicleStats _stats;
+    private Fuel _fuel; 
+
+    [Header("Health & Armor")]
+    [SerializeField] private TextMeshProUGUI _healthText;
+    [SerializeField] private TextMeshProUGUI _cabArmorText;
+    [SerializeField] private TextMeshProUGUI _bodyArmorText;
+    
+    [Header("Movement")]
+    [SerializeField] private TextMeshProUGUI _maxSpeedText; // Новое поле для макс. скорости
+    [SerializeField] private TextMeshProUGUI _accelText;    // Перенесено сюда
+    
+    [Header("General Vehicle Stats")]
+    [SerializeField] private TextMeshProUGUI _weightText;
+    [SerializeField] private TextMeshProUGUI _fuelCapacityText;
+    [SerializeField] private TextMeshProUGUI _fuelConsumptionText; // Теперь выводит коэффициент
+
+    [Header("Weapon Stats")]
+    [SerializeField] private TextMeshProUGUI _weaponAngleText;
+    [SerializeField] private TextMeshProUGUI _weaponDamageText;
+    [SerializeField] private TextMeshProUGUI _weaponFireRateText;
+    [SerializeField] private TextMeshProUGUI _weaponRangeText;
+
+    private void Start()
+    {
+        GameObject vehicle = GameObject.FindGameObjectWithTag("Player");
+        if (vehicle != null) 
+        {
+            _stats = vehicle.GetComponent<VehicleStats>();
+            _fuel = vehicle.GetComponent<Fuel>(); 
+        }
+    }
+
+    private void Update()
+    {
+        if (_stats == null) return;
+
+        // 1. Здоровье
+        if (_healthText != null) _healthText.text = $"Здоровье: {_stats.MaxHealth}";
+
+        // 2. Броня 
+        if (_cabArmorText != null)
+        {
+            float cabArmorPercent = (_stats.Cab != null ? _stats.Cab.armor : 0f) * 100f;
+            _cabArmorText.text = $"Броня кабины: {cabArmorPercent:F0}%";
+        }
+
+        if (_bodyArmorText != null)
+        {
+            float bodyArmorPercent = (_stats.Body != null ? _stats.Body.armor : 0f) * 100f;
+            _bodyArmorText.text = $"Броня кузова: {bodyArmorPercent:F0}%";
+        }
+
+        // 3. Передвижение
+        if (_maxSpeedText != null)
+        {
+            // Берем базовую скорость из данных кабины
+            float maxSpeed = _stats.Cab != null ? _stats.Cab.baseSpeed : 0f;
+            _maxSpeedText.text = $"Макс. скорость: {maxSpeed}";
+        }
+        
+        if (_accelText != null)
+        {
+            _accelText.text = $"Ускорение: {_stats.Acceleration:F1}";
+        }
+
+        // 4. Вес (в тоннах)
+        if (_weightText != null) 
+        {
+            float weightInTons = _stats.TotalWeight / 1000f;
+            // Формат F1 оставит одну цифру после запятой (например: 1.2 т)
+            _weightText.text = $"Вес: {weightInTons:F1} т";
+        }
+
+        // 5. Топливная система
+        if (_fuelCapacityText != null)
+        {
+            float capacity = _stats.Body != null ? _stats.Body.fuelCapacity : 0f;
+            _fuelCapacityText.text = $"Объем бака: {capacity} л";
+        }
+        
+        if (_fuelConsumptionText != null)
+        {
+            // Показываем взаимосвязь веса и расхода как коэффициент (множитель)
+            // Если машина весит 1500 кг, коэффициент будет x1.50
+            float weightMultiplier = _stats.TotalWeight / 1000f;
+            _fuelConsumptionText.text = $"Коэфф. расхода: x{weightMultiplier:F2}";
+        }
+
+        // 6. Оружие
+        if (_stats.Weapon != null)
+        {
+            if (_weaponDamageText != null) _weaponDamageText.text = $"Урон: {_stats.Weapon.damage}";
+            if (_weaponFireRateText != null) _weaponFireRateText.text = $"Скорострельность: {_stats.Weapon.fireRate}";
+            if (_weaponRangeText != null) _weaponRangeText.text = $"Дальность: {_stats.Weapon.range}";
+        }
+        else
+        {
+            if (_weaponDamageText != null) _weaponDamageText.text = "Урон: 0";
+            if (_weaponFireRateText != null) _weaponFireRateText.text = "Скорострельность: 0";
+            if (_weaponRangeText != null) _weaponRangeText.text = "Дальность: 0";
+        }
+
+        if (_weaponAngleText != null)
+        {
+            float angleLimit = _stats.Cab != null ? _stats.Cab.weaponRotationLimit : 0f;
+            _weaponAngleText.text = $"Угол обстрела: {angleLimit}°";
+        }
+    }
+}
