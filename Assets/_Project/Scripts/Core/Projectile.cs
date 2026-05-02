@@ -12,9 +12,6 @@ public class Projectile : MonoBehaviour
         _isCritical = isCritical;
         _owner = owner;
 
-        // Лог запуска: проверяем, кто стреляет и с какими параметрами
-        Debug.Log($"[Projectile] Выстрел! Владелец: {(_owner != null ? _owner.name : "NULL")}, Урон: {_damage}, Крит: {_isCritical}");
-
         Rigidbody2D rb = GetComponent<Rigidbody2D>();
         if (rb != null)
         {
@@ -26,44 +23,47 @@ public class Projectile : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        // 1. Фиксируем сам факт любого физического контакта
-        Debug.Log($"[Projectile] Контакт с объектом: {collision.name}, Слой: {LayerMask.LayerToName(collision.gameObject.layer)}");
-
-        // 2. Проверка иерархии
-        VehicleStats hitVehicle = collision.GetComponentInParent<VehicleStats>();
-        GameObject hitRoot = collision.transform.root.gameObject;
-
-        // Логируем проверку владельца
-        if (hitVehicle != null)
-        {
-            Debug.Log($"[Projectile] Найдена машина: {hitVehicle.name}. Сравнение с владельцем: {(hitVehicle.gameObject == _owner ? "СВОЙ (Игнор)" : "ЧУЖОЙ (Атака)")}");
-            
-            if (hitVehicle.gameObject == _owner) return;
-        }
-        else
-        {
-            Debug.Log($"[Projectile] В объекте {collision.name} НЕ найден VehicleStats в родителях. Проверка по Root: {(hitRoot == _owner ? "СВОЙ" : "ЧУЖОЙ")}");
-            if (hitRoot == _owner) return;
-        }
-
-        // 3. Поиск здоровья
-        Health health = collision.GetComponentInParent<Health>();
+        // 1. Ищем хитбокс конкретной части
+        VehiclePartHitbox hitbox = collision.GetComponentInParent<VehiclePartHitbox>();
         
+        // Определяем машину (либо через хитбокс, либо через поиск в родителях)[cite: 7]
+        VehicleStats hitVehicle = hitbox != null ? hitbox.ownerStats : collision.GetComponentInParent<VehicleStats>();
+
+        // 2. Проверка: не попали ли мы в себя[cite: 7]
+        if (hitVehicle != null && hitVehicle.gameObject == _owner) return;
+
+        float damageToDeal = _damage;
+
+        // 3. Если попали в конкретный хитбокс — применяем броню этой части
+        if (hitbox != null && hitVehicle != null)
+        {
+            float partArmor = 0f;
+
+            if (hitbox.partType == VehiclePartType.Cab && hitVehicle.Cab != null)
+            {
+                partArmor = hitVehicle.Cab.armor; // Берем броню из CabDataSO[cite: 6, 8]
+            }
+            else if (hitbox.partType == VehiclePartType.Body && hitVehicle.Body != null)
+            {
+                partArmor = hitVehicle.Body.armor; // Берем броню из BodyDataSO[cite: 6, 8]
+            }
+
+            // Вычитаем процент урона, равный проценту брони (броня 20 = -20% урона)
+            float armorModifier = Mathf.Clamp(partArmor / 100f, 0f, 1f);
+            damageToDeal *= (1f - armorModifier);
+        }
+
+        // 4. Нанесение урона компоненту Health[cite: 6, 7]
+        Health health = collision.GetComponentInParent<Health>();
         if (health != null)
         {
-            Debug.Log($"[Projectile] Здоровье найдено на {health.gameObject.name}. Наносим урон!");
-            health.TakeDamage(_damage, _isCritical, _owner);
+            health.TakeDamage(damageToDeal, _isCritical, _owner);
             Destroy(gameObject); 
         }
-        else
+        else if (!collision.isTrigger)
         {
-            Debug.LogWarning($"[Projectile] Попал в {collision.name}, но компонент Health не найден ни в объекте, ни в родителях!");
-            
-            if (!collision.isTrigger)
-            {
-                Debug.Log("[Projectile] Попадание в стену или статический объект. Уничтожение.");
-                Destroy(gameObject);
-            }
+            // Попадание в стену или препятствие[cite: 7]
+            Destroy(gameObject);
         }
     }
 }
