@@ -25,6 +25,7 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private float _timeForCRank = 240f;
 
     private float _matchStartTime;
+    public bool IsVictory { get; private set; } = false;
 
     private void Awake()
     {
@@ -63,6 +64,7 @@ public class BattleManager : MonoBehaviour
     // Вызывается из EnemySpawner.cs после зачистки ПОСЛЕДНЕЙ волны
     public void OnVictory()
     {
+        IsVictory = true;
         // 1. Считаем время матча
         float matchDuration = Time.time - _matchStartTime;
         

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SurviveArena.Data.EnemyModifierSO
   healthMultiplier: 0.75
   speedMultiplier: 1
-  damageMultiplier: 0.25
+  damageMultiplier: 0.75
   visualTint: {r: 1, g: 0.9470248, b: 0, a: 1}
   tier: 1
-  xpMultiplier: 2
+  xpMultiplier: 1.3

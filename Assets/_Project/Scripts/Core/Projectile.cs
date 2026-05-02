@@ -2,54 +2,68 @@ using UnityEngine;
 
 public class Projectile : MonoBehaviour
 {
-    private Rigidbody2D _rb;
-    private Vector3 _startPosition;
     private float _damage;
-    private float _range;
     private bool _isCritical;
-    private bool _isLaunched;
     private GameObject _owner;
 
     public void Launch(float damage, float speed, float range, GameObject owner, bool isCritical)
     {
         _damage = damage;
-        _range = range;
-        _owner = owner;
         _isCritical = isCritical;
-        _startPosition = transform.position;
-        _isLaunched = true;
+        _owner = owner;
 
-        if (GetComponent<Rigidbody2D>() != null) 
-            GetComponent<Rigidbody2D>().linearVelocity = transform.up * speed;
-    }
+        // Лог запуска: проверяем, кто стреляет и с какими параметрами
+        Debug.Log($"[Projectile] Выстрел! Владелец: {(_owner != null ? _owner.name : "NULL")}, Урон: {_damage}, Крит: {_isCritical}");
 
-    void Update()
-    {
-        if (_isLaunched && Vector3.Distance(_startPosition, transform.position) >= _range) 
-            Destroy(gameObject);
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            rb.linearVelocity = transform.up * speed;
+        }
+        
+        Destroy(gameObject, range / speed);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        // 1. Проверяем корень объекта, с которым столкнулись
+        // 1. Фиксируем сам факт любого физического контакта
+        Debug.Log($"[Projectile] Контакт с объектом: {collision.name}, Слой: {LayerMask.LayerToName(collision.gameObject.layer)}");
+
+        // 2. Проверка иерархии
+        VehicleStats hitVehicle = collision.GetComponentInParent<VehicleStats>();
         GameObject hitRoot = collision.transform.root.gameObject;
 
-        // 2. Если корень столкновения — это тот же самый корень владельца, игнорируем
-        if (hitRoot == _owner) return;
+        // Логируем проверку владельца
+        if (hitVehicle != null)
+        {
+            Debug.Log($"[Projectile] Найдена машина: {hitVehicle.name}. Сравнение с владельцем: {(hitVehicle.gameObject == _owner ? "СВОЙ (Игнор)" : "ЧУЖОЙ (Атака)")}");
+            
+            if (hitVehicle.gameObject == _owner) return;
+        }
+        else
+        {
+            Debug.Log($"[Projectile] В объекте {collision.name} НЕ найден VehicleStats в родителях. Проверка по Root: {(hitRoot == _owner ? "СВОЙ" : "ЧУЖОЙ")}");
+            if (hitRoot == _owner) return;
+        }
 
-        // 3. Ищем здоровье в иерархии того, во что попали
+        // 3. Поиск здоровья
         Health health = collision.GetComponentInParent<Health>();
         
         if (health != null)
         {
-            // Передаем урон, статус крита и ссылку на владельца (кто стрелял)
-            health.TakeDamage(_damage, _isCritical, _owner); 
-            Destroy(gameObject);
+            Debug.Log($"[Projectile] Здоровье найдено на {health.gameObject.name}. Наносим урон!");
+            health.TakeDamage(_damage, _isCritical, _owner);
+            Destroy(gameObject); 
         }
-        else if (!collision.isTrigger) 
+        else
         {
-            // Если попали в объект без здоровья (например, стену)
-            Destroy(gameObject);
+            Debug.LogWarning($"[Projectile] Попал в {collision.name}, но компонент Health не найден ни в объекте, ни в родителях!");
+            
+            if (!collision.isTrigger)
+            {
+                Debug.Log("[Projectile] Попадание в стену или статический объект. Уничтожение.");
+                Destroy(gameObject);
+            }
         }
     }
 }

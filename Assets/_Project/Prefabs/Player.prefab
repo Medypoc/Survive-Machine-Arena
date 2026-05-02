@@ -117,9 +117,9 @@ Transform:
   m_GameObject: {fileID: 2658801774577446173}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -1.82, z: 0}
-  m_LocalScale: {x: 3, y: 5.876903, z: 2.6086957}
-  m_ConstrainProportionsScale: 1
+  m_LocalPosition: {x: 0, y: -1.72, z: 0}
+  m_LocalScale: {x: 4, y: 7, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1688409826231338278}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -772,6 +772,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1688409826231338278}
   - component: {fileID: 8409292155521654826}
+  - component: {fileID: 1421281122490900114}
   - component: {fileID: 6497788353553650434}
   - component: {fileID: 5012513850926364642}
   - component: {fileID: 27289982981444437}
@@ -832,6 +833,52 @@ Rigidbody2D:
   m_SleepingMode: 0
   m_CollisionDetection: 1
   m_Constraints: 0
+--- !u!61 &1421281122490900114
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8931515417728987396}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 1, y: 1}
+  m_EdgeRadius: 0
 --- !u!114 &6497788353553650434
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -864,6 +911,7 @@ MonoBehaviour:
   handbrakeSteerMultiplier: 2
   dashForceMultiplier: 1.5
   dashCooldown: 3
+  dashFuelCost: 15
 --- !u!114 &27289982981444437
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -925,7 +973,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Fuel
   maxFuel: 0
   currentFuel: 0
-  baseConsumptionRate: 1
+  _timeToDieWithoutFuel: 10
 --- !u!114 &6198322340447534417
 MonoBehaviour:
   m_ObjectHideFlags: 0

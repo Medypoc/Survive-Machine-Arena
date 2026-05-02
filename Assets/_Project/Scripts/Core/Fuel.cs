@@ -3,72 +3,58 @@ using System;
 
 public class Fuel : MonoBehaviour
 {
-    [Header("Stats")]
-    public float maxFuel;
+    public event Action OnFuelChanged;
+
+    [Header("Fuel Settings")]
+    public float maxFuel = 100f;
     public float currentFuel;
     
-    [Header("Consumption Tuning")]
-    [Tooltip("Базовый расход топлива при максимальном газе (в секунду)")]
-    public float baseConsumptionRate = 1f;
+    [Header("Death Timer (No Fuel)")]
+    [SerializeField] private float _timeToDieWithoutFuel = 10f;
+    private float _currentDeathTimer;
+    private bool _isCountingDown = false;
 
-    // Событие для UI (чтобы сделать полоску бензина)
-    public event Action OnFuelChanged;
-    public event Action OnOutOfFuel; // Событие, если топливо кончилось
-
-    private bool _isOutOfFuel = false;
-    private VehicleStats _stats;
+    private Health _playerHealth;
 
     private void Awake()
     {
-        _stats = GetComponent<VehicleStats>();
+        _playerHealth = GetComponent<Health>();
+        currentFuel = maxFuel;
     }
 
-    private void Start()
+    private void Update()
     {
-        // При старте даем полный бак
-        if (currentFuel <= 0 && !_isOutOfFuel)
+        // Проверка критического состояния
+        if (currentFuel <= 0 && !_isCountingDown)
         {
-            currentFuel = maxFuel;
+            StartDeathTimer();
         }
-        NotifyFuelChanged();
+        else if (currentFuel > 0 && _isCountingDown)
+        {
+            StopDeathTimer();
+        }
+
+        if (_isCountingDown)
+        {
+            HandleDeathCountdown();
+        }
     }
 
-    // Этот метод будет вызывать VehicleMovement каждый кадр, когда игрок жмет газ
-    public void ConsumeFuel(float gasInput)
+    // ИСПРАВЛЕНИЕ ОШИБКИ CS1061: Добавляем метод потребления топлива
+    public void ConsumeFuel(float amount)
     {
-        if (_isOutOfFuel || _stats == null) return;
+        if (amount <= 0) return;
 
-        // Если педаль не нажата, бензин не тратится (или можно сделать холостой ход, если нужно)
-        if (Mathf.Abs(gasInput) < 0.1f) return;
-
-        // 1. Считаем коэффициент веса. База: 1000 кг = коэф 1.0
-        float totalWeight = _stats.TotalWeight;
-        float weightMultiplier = totalWeight / 1000f; // 800+200 = 1000 -> коэф 1.
-
-        // 2. Считаем итоговый расход за этот кадр
-        // Берем абсолютное значение газа (и вперед, и назад тратит топливо)
-        float consumptionThisFrame = baseConsumptionRate * Mathf.Abs(gasInput) * weightMultiplier * Time.fixedDeltaTime;
-
-        // 3. Отнимаем бензин
-        currentFuel -= consumptionThisFrame;
-        currentFuel = Mathf.Clamp(currentFuel, 0, maxFuel);
-        
+        currentFuel -= amount * Time.deltaTime;
+        // Не даем упасть ниже нуля
+        currentFuel = Mathf.Max(currentFuel, 0); 
+        // Уведомляем UI только если значение изменилось
         NotifyFuelChanged();
-
-        if (currentFuel <= 0)
-        {
-            OutOfFuel();
-        }
     }
 
     public void AddFuel(float amount)
     {
-        if (amount <= 0) return;
-        
-        currentFuel += amount;
-        currentFuel = Mathf.Clamp(currentFuel, 0, maxFuel);
-        
-        _isOutOfFuel = false; // Оживляем машину, если она стояла сухая
+        currentFuel = Mathf.Clamp(currentFuel + amount, 0, maxFuel);
         NotifyFuelChanged();
     }
 
@@ -77,12 +63,40 @@ public class Fuel : MonoBehaviour
         OnFuelChanged?.Invoke();
     }
 
-    private void OutOfFuel()
+    private void StartDeathTimer()
     {
-        if (_isOutOfFuel) return;
-        _isOutOfFuel = true;
-        
-        Debug.Log("Out of Fuel!");
-        OnOutOfFuel?.Invoke();
+        _isCountingDown = true;
+        _currentDeathTimer = _timeToDieWithoutFuel;
+    }
+
+    private void StopDeathTimer()
+    {
+        _isCountingDown = false;
+    }
+
+    private void HandleDeathCountdown()
+    {
+        // Теперь Fuel видит IsVictory в BattleManager
+        if (BattleManager.Instance != null && BattleManager.Instance.IsVictory)
+        {
+            _isCountingDown = false;
+            return;
+        }
+
+        _currentDeathTimer -= Time.deltaTime;
+
+        if (_currentDeathTimer <= 0)
+        {
+            _isCountingDown = false;
+            DieFromLackOfFuel();
+        }
+    }
+
+    private void DieFromLackOfFuel()
+    {
+        if (_playerHealth != null)
+        {
+            _playerHealth.TakeDamage(9999f, false, null);
+        }
     }
 }
