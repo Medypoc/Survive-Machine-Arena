@@ -41,6 +41,10 @@ public class EnemyReward : MonoBehaviour
         if (BattleManager.Instance != null)
         {
             BattleManager.Instance.AddMatchRewards(_grantedXP, _grantedMoney);
+            
+            // --- НОВАЯ СТРОЧКА: Показываем заработанный опыт перед удалением врага ---
+            PopupManager.Instance?.ShowXP(transform.position, _grantedXP);
+            // -------------------------------------------------------------------------
         }
     }
 }

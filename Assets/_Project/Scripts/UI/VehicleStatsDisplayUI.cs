@@ -12,19 +12,21 @@ public class VehicleStatsDisplayUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _bodyArmorText;
     
     [Header("Movement")]
-    [SerializeField] private TextMeshProUGUI _maxSpeedText; // Новое поле для макс. скорости
-    [SerializeField] private TextMeshProUGUI _accelText;    // Перенесено сюда
+    [SerializeField] private TextMeshProUGUI _maxSpeedText; 
+    [SerializeField] private TextMeshProUGUI _accelText;    
     
     [Header("General Vehicle Stats")]
     [SerializeField] private TextMeshProUGUI _weightText;
     [SerializeField] private TextMeshProUGUI _fuelCapacityText;
-    [SerializeField] private TextMeshProUGUI _fuelConsumptionText; // Теперь выводит коэффициент
+    [SerializeField] private TextMeshProUGUI _fuelConsumptionText; 
 
     [Header("Weapon Stats")]
     [SerializeField] private TextMeshProUGUI _weaponAngleText;
-    [SerializeField] private TextMeshProUGUI _weaponDamageText;
+    [SerializeField] private TextMeshProUGUI _weaponDamageText; // Выведет диапазон мин-макс
+    [SerializeField] private TextMeshProUGUI _weaponCritText;   // Новое: шанс и множитель крита
     [SerializeField] private TextMeshProUGUI _weaponFireRateText;
     [SerializeField] private TextMeshProUGUI _weaponRangeText;
+    [SerializeField] private TextMeshProUGUI _weaponBulletSpeedText; // Новое: скорость снаряда
 
     private void Start()
     {
@@ -59,7 +61,6 @@ public class VehicleStatsDisplayUI : MonoBehaviour
         // 3. Передвижение
         if (_maxSpeedText != null)
         {
-            // Берем базовую скорость из данных кабины
             float maxSpeed = _stats.Cab != null ? _stats.Cab.baseSpeed : 0f;
             _maxSpeedText.text = $"Макс. скорость: {maxSpeed}";
         }
@@ -69,11 +70,10 @@ public class VehicleStatsDisplayUI : MonoBehaviour
             _accelText.text = $"Ускорение: {_stats.Acceleration:F1}";
         }
 
-        // 4. Вес (в тоннах)
+        // 4. Вес
         if (_weightText != null) 
         {
             float weightInTons = _stats.TotalWeight / 1000f;
-            // Формат F1 оставит одну цифру после запятой (например: 1.2 т)
             _weightText.text = $"Вес: {weightInTons:F1} т";
         }
 
@@ -86,24 +86,42 @@ public class VehicleStatsDisplayUI : MonoBehaviour
         
         if (_fuelConsumptionText != null)
         {
-            // Показываем взаимосвязь веса и расхода как коэффициент (множитель)
-            // Если машина весит 1500 кг, коэффициент будет x1.50
             float weightMultiplier = _stats.TotalWeight / 1000f;
             _fuelConsumptionText.text = $"Коэфф. расхода: x{weightMultiplier:F2}";
         }
 
-        // 6. Оружие
+        // 6. Оружие (Обновлено под новые параметры WeaponDataSO)
         if (_stats.Weapon != null)
         {
-            if (_weaponDamageText != null) _weaponDamageText.text = $"Урон: {_stats.Weapon.damage}";
-            if (_weaponFireRateText != null) _weaponFireRateText.text = $"Скорострельность: {_stats.Weapon.fireRate}";
-            if (_weaponRangeText != null) _weaponRangeText.text = $"Дальность: {_stats.Weapon.range}";
+            // Вывод диапазона урона
+            if (_weaponDamageText != null) 
+                _weaponDamageText.text = $"Урон: {_stats.Weapon.minDamage:F0} - {_stats.Weapon.maxDamage:F0}";
+
+            // Вывод критов (Шанс % и Множитель)
+            if (_weaponCritText != null)
+            {
+                float critChancePercent = _stats.Weapon.criticalHitChance * 100f;
+                _weaponCritText.text = $"Крит: {critChancePercent:F0}% (x{_stats.Weapon.criticalDamageMultiplier:F1})";
+            }
+
+            // Вывод скорострельности в RPM[cite: 4]
+            if (_weaponFireRateText != null) 
+                _weaponFireRateText.text = $"Скорострельность: {_stats.Weapon.fireRateRPM} RPM";
+
+            if (_weaponRangeText != null) 
+                _weaponRangeText.text = $"Дальность: {_stats.Weapon.range}";
+
+            if (_weaponBulletSpeedText != null)
+                _weaponBulletSpeedText.text = $"Скорость пули: {_stats.Weapon.bulletSpeed}";
         }
         else
         {
+            // Обнуление, если оружие не установлено
             if (_weaponDamageText != null) _weaponDamageText.text = "Урон: 0";
+            if (_weaponCritText != null) _weaponCritText.text = "Крит: 0";
             if (_weaponFireRateText != null) _weaponFireRateText.text = "Скорострельность: 0";
             if (_weaponRangeText != null) _weaponRangeText.text = "Дальность: 0";
+            if (_weaponBulletSpeedText != null) _weaponBulletSpeedText.text = "Скорость пули: 0";
         }
 
         if (_weaponAngleText != null)

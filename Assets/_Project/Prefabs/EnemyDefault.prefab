@@ -204,12 +204,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ae6b2a9ee93a2b4e800ea3b09fb69eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VehicleStats
-  _bodyData: {fileID: 11400000, guid: e5f7b29325637cb44820c924dc3579a5, type: 2}
-  _cabData: {fileID: 11400000, guid: 0ad4b9a5577cd814f810c3018e80a4c3, type: 2}
-  _weaponData: {fileID: 11400000, guid: 617755639a4a4914486b5a8c50189793, type: 2}
-  _bodyRenderer: {fileID: 7538187749419372920}
-  _cabRenderer: {fileID: 2527967780153308126}
-  _weaponRenderer: {fileID: 1624385451199315175}
+  _bodySlot: {fileID: 1258331611572167358}
+  _cabSlot: {fileID: 910288954885855218}
+  _weaponSlot: {fileID: 7961932766062198779}
 --- !u!114 &6081071652100778800
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -247,6 +244,7 @@ MonoBehaviour:
   handbrakeSteerMultiplier: 1.5
   dashForceMultiplier: 3
   dashCooldown: 3
+  dashFuelCost: 15
 --- !u!114 &-6256077429805146780
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -390,6 +388,7 @@ GameObject:
   - component: {fileID: 5164141232814117500}
   - component: {fileID: 8907241930251236201}
   - component: {fileID: 6851936370091170047}
+  - component: {fileID: 7961932766062198779}
   m_Layer: 7
   m_Name: Weapon_Slot
   m_TagString: Untagged
@@ -440,6 +439,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeaponFire
   firePoint: {fileID: 6456311480411658693}
+--- !u!114 &7961932766062198779
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5278987268960506364}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c9a2a4cdad88da4e92b9caf69f2172d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VehiclePartSlot
+  visualRenderer: {fileID: 1624385451199315175}
 --- !u!1 &5645224381029343922
 GameObject:
   m_ObjectHideFlags: 0

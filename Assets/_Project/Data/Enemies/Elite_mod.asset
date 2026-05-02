@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2cb58fd7a13b06748b89ea965ba18cb8, type: 3}
   m_Name: Elite_mod
   m_EditorClassIdentifier: Assembly-CSharp::SurviveArena.Data.EnemyModifierSO
-  modifierName: Elite
   healthMultiplier: 1.5
   speedMultiplier: 1.2
   damageMultiplier: 0.5
   visualTint: {r: 1, g: 0, b: 0, a: 1}
+  tier: 2
+  xpMultiplier: 4

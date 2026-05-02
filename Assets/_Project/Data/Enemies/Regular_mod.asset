@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2cb58fd7a13b06748b89ea965ba18cb8, type: 3}
   m_Name: Regular_mod
   m_EditorClassIdentifier: Assembly-CSharp::SurviveArena.Data.EnemyModifierSO
-  modifierName: Regular
   healthMultiplier: 0.75
   speedMultiplier: 1
   damageMultiplier: 0.25
   visualTint: {r: 1, g: 0.9470248, b: 0, a: 1}
+  tier: 1
+  xpMultiplier: 2

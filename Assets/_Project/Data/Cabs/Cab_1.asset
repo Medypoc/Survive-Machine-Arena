@@ -15,6 +15,7 @@ MonoBehaviour:
   partName: Cab_1
   partSprite: {fileID: 21300000, guid: 1896ee6f6038bc8469dd0792059d50b7, type: 3}
   vehicleClass: 1
+  baseXP: 5
   baseSpeed: 40
   baseAcceleration: 15
   steeringSpeed: 15

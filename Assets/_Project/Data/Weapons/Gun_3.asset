@@ -15,6 +15,7 @@ MonoBehaviour:
   partName: 
   partSprite: {fileID: 21300000, guid: 1d9e072e42471f04d98bc04a15e14910, type: 3}
   vehicleClass: 0
+  baseXP: 20
   damage: 10
   fireRate: 600
   range: 15

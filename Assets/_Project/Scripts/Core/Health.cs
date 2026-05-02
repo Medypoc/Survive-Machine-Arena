@@ -29,26 +29,22 @@ public class Health : MonoBehaviour
         NotifyHealthChanged();
     }
 
-    public void TakeDamage(float amount)
+    // Теперь метод принимает дополнительный параметр isCritical
+    public void TakeDamage(float amount, bool isCritical, GameObject attacker)
     {
-        // Оригинальная проверка на смерть
-        if (isDead) return;
+        if (currentHealth <= 0) return;
 
-        // Отнимаем урон, но ограничиваем значения, чтобы полоска UI не ушла в минус
         currentHealth -= amount;
-        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth); 
-        
-        // Оригинальный вызов события получения урона[cite: 1]
-        onDamageTaken?.Invoke();
-        
-        // Оповещаем UI об изменении
+        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
         NotifyHealthChanged();
 
-        // Оригинальная логика проверки на смерть[cite: 1]
-        if (currentHealth <= 0)
+        // Показываем цифры ТОЛЬКО если атакующий — игрок
+        if (attacker != null && attacker.CompareTag("Player") && PopupManager.Instance != null)
         {
-            Die();
+            PopupManager.Instance.ShowPlayerDamage(transform.position, amount, isCritical);
         }
+
+        if (currentHealth <= 0) Die();
     }
 
     // Выделен в отдельный публичный метод, чтобы VehicleStats мог дергать его при смене модулей
