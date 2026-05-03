@@ -58,13 +58,13 @@ public class Health : MonoBehaviour
         if (isDead) return;
         isDead = true;
 
-        // Оповещаем все системы (звук взрыва, визуальные эффекты)
+        // Оповещаем все системы (звук взрыва, визуальные эффекты и т.д.)
         onDeath?.Invoke();
 
         if (gameObject.CompareTag("Player"))
         {
-            // Выключаем объект игрока. Это мгновенно скроет машину 
-            // и остановит все скрипты на ней (движение, стрельбу).
+            // Выключаем объект игрока: это мгновенно скроет машину и 
+            // остановит все активные скрипты на ней.
             gameObject.SetActive(false); 
             
             if (BattleManager.Instance != null)
@@ -74,15 +74,17 @@ public class Health : MonoBehaviour
         }
         else
         {
-            // --- ИСПРАВЛЕННЫЙ БЛОК: Выброс награды ---
+            // 1. Выброс наград за уничтожение врага
             EnemyReward reward = GetComponent<EnemyReward>();
             if (reward != null)
             {
-                reward.DropRewards(); // Сообщаем BattleManager'у о заработке
+                reward.DropRewards(); 
             }
-            // ----------------------------------------
 
-            // Обязательно удаляем врага со сцены
+            // 2. Удаление объекта со сцены.
+            // Ваш WaveManager автоматически очистит список activeEnemies в своем 
+            // методе Update, как только этот объект станет null.
+            // Благодаря этому счетчик врагов в WaveUI обновится автоматически.
             Destroy(gameObject, 0.1f);
         }
     }

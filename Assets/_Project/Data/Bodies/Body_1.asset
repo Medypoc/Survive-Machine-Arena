@@ -18,6 +18,6 @@ MonoBehaviour:
   baseXP: 5
   additionalHP: 50
   inventorySlots: 1
-  armor: 10
+  armor: 25
   weight: 800
   fuelCapacity: 100

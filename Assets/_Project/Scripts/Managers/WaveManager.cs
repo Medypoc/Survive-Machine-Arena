@@ -26,11 +26,16 @@ public class WaveManager : MonoBehaviour
     private float nextWaveTimer;
     private List<GameObject> activeEnemies = new List<GameObject>();
 
-    // ПУБЛИЧНЫЕ СВОЙСТВА ДЛЯ UI (ВОЗВРАЩЕНО)[cite: 6]
+    // --- ПУБЛИЧНЫЕ СВОЙСТВА ДЛЯ UI ---
     public bool IsWaitingForWave => isWaitingForNextWave;
     public float TimeRemaining => Mathf.Max(0, nextWaveTimer - Time.time);
     public int CurrentWave => currentWave;
     public int TotalWaves => totalWaves;
+
+    // Новые свойства для исправления ошибок в WaveUI
+    public int TotalEnemiesInCurrentWave => enemiesPerWave; 
+    public int EnemiesAlive => activeEnemies.Count;
+    // ---------------------------------
 
     void Start()
     {
@@ -40,8 +45,10 @@ public class WaveManager : MonoBehaviour
 
     void Update()
     {
+        // Очистка списка от уничтоженных объектов (важно для точности EnemiesAlive)
         activeEnemies.RemoveAll(item => item == null);
 
+        // Проверка условия победы
         if (currentWave == totalWaves && activeEnemies.Count == 0 && !isWaitingForNextWave)
         {
             BattleManager.Instance?.OnVictory();
@@ -49,6 +56,7 @@ public class WaveManager : MonoBehaviour
             return;
         }
 
+        // Логика перехода между волнами
         if (isWaitingForNextWave)
         {
             if (Time.time >= nextWaveTimer && currentWave < totalWaves)
@@ -93,6 +101,8 @@ public class WaveManager : MonoBehaviour
             if (globalModifier != null) 
                 stats.ApplyModifiers(globalModifier.healthMultiplier, globalModifier.speedMultiplier, globalModifier.damageMultiplier);
         }
+
+        // Инициализация наград при смерти
         enemyObj.GetComponent<EnemyReward>()?.InitializeRewards(50, body, cab, weapon, globalModifier);
     }
 }

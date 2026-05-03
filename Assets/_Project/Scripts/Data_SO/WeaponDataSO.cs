@@ -15,6 +15,10 @@ public class WeaponDataSO : PartDataSO // НАСЛЕДОВАНИЕ: теперь
     [Tooltip("Множитель критического урона. 1.2 = 120%")]
     public float criticalDamageMultiplier = 1.2f;
 
+    [Header("Ammo & Reload")]
+    public int magazineSize = 30;  // Количество патронов в магазине
+    public float reloadTime = 5f; 
+
     [Header("Shooting Stats")]
     [Tooltip("Скорострельность: Выстрелов в минуту (RPM)")]
     public float fireRateRPM = 300f; 
