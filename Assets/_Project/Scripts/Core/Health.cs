@@ -19,8 +19,9 @@ public class Health : MonoBehaviour
 
     private void Start()
     {
-        // Если VehicleStats (или другой скрипт) еще не установил здоровье, задаем его как максимальное
-        if (currentHealth <= 0 && !isDead)
+        // Если это НЕ игрок, и здоровье не задано в инспекторе — ставим максимум.
+        // Здоровье Игрока мы больше не трогаем, так как за него отвечает PlayerPersistence.
+        if (!gameObject.CompareTag("Player") && currentHealth <= 0 && !isDead)
         {
             currentHealth = maxHealth;
         }
@@ -29,13 +30,16 @@ public class Health : MonoBehaviour
         NotifyHealthChanged();
     }
 
-    // Теперь метод принимает дополнительный параметр isCritical
     public void TakeDamage(float amount, bool isCritical, GameObject attacker)
     {
-        if (currentHealth <= 0) return;
+        // Если уже мертвы, игнорируем урон
+        if (isDead || currentHealth <= 0) return;
 
         currentHealth -= amount;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
+        
+        // Вызываем события получения урона и обновления UI
+        onDamageTaken?.Invoke(); 
         NotifyHealthChanged();
 
         // Показываем цифры ТОЛЬКО если атакующий — игрок
@@ -47,7 +51,7 @@ public class Health : MonoBehaviour
         if (currentHealth <= 0) Die();
     }
 
-    // Выделен в отдельный публичный метод, чтобы VehicleStats мог дергать его при смене модулей
+    // Выделен в отдельный публичный метод для обновления интерфейса извне
     public void NotifyHealthChanged()
     {
         OnHealthChanged?.Invoke();
@@ -82,9 +86,6 @@ public class Health : MonoBehaviour
             }
 
             // 2. Удаление объекта со сцены.
-            // Ваш WaveManager автоматически очистит список activeEnemies в своем 
-            // методе Update, как только этот объект станет null.
-            // Благодаря этому счетчик врагов в WaveUI обновится автоматически.
             Destroy(gameObject, 0.1f);
         }
     }

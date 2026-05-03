@@ -1149,6 +1149,7 @@ GameObject:
   - component: {fileID: 3790167453239074634}
   - component: {fileID: 7992158886224953735}
   - component: {fileID: 6198322340447534417}
+  - component: {fileID: 2882508956608550283}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -1311,3 +1312,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerEquipmentLoader
   _playerProfile: {fileID: 11400000, guid: 1db9c89793d644447a09438f5cc0cb9e, type: 2}
+--- !u!114 &2882508956608550283
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8931515417728987396}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: efa8fd9b0d799b843b74ead30aadbf2a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerPersistence
+  profile: {fileID: 11400000, guid: 1db9c89793d644447a09438f5cc0cb9e, type: 2}

@@ -114,23 +114,22 @@ public class VehicleStats : MonoBehaviour
         SteeringSpeed *= _speedMult;
         MaxHealth = Mathf.RoundToInt(MaxHealth * _hpMult);
 
-        // Синхронизация компонентов здоровья и топлива
-        if (_healthComponent != null) 
-        {
-            float healthPercentage = _healthComponent.maxHealth > 0 
-                ? (float)_healthComponent.currentHealth / _healthComponent.maxHealth 
-                : 1f;
-            
-            _healthComponent.maxHealth = MaxHealth;
-            _healthComponent.currentHealth = Mathf.RoundToInt(MaxHealth * healthPercentage); 
-            _healthComponent.NotifyHealthChanged(); 
-        }
+        // УДАЛЕН КОНФЛИКТУЮЩИЙ БЛОК СИНХРОНИЗАЦИИ ЗДОРОВЬЯ
 
+        // Оставляем только синхронизацию топлива (если она тебе нужна здесь)
         if (_fuelComponent != null && _bodyData != null)
         {
             _fuelComponent.maxFuel = _bodyData.fuelCapacity; 
             if (_fuelComponent.currentFuel <= 0) _fuelComponent.currentFuel = _fuelComponent.maxFuel;
             _fuelComponent.NotifyFuelChanged();
+        }
+
+        // Если нам нужно обновить UI максимального здоровья, вызываем метод из Health
+        if (_healthComponent != null)
+        {
+            // Передаем актуальный максимум, но НЕ ТРОГАЕМ currentHealth
+            _healthComponent.maxHealth = MaxHealth; 
+            _healthComponent.NotifyHealthChanged();
         }
 
         OnStatsChanged?.Invoke();

@@ -6,8 +6,13 @@ public class VehicleStatsDisplayUI : MonoBehaviour
     private VehicleStats _stats;
     private Fuel _fuel; 
 
+    [Header("Data Sources")]
+    // МЫ ДОБАВИЛИ ЭТУ СТРОКУ:
+    [SerializeField] private PlayerDataSO _playerProfile; 
+
     [Header("Health & Armor")]
     [SerializeField] private TextMeshProUGUI _healthText;
+    [SerializeField] private TextMeshProUGUI _currentHealthText; 
     [SerializeField] private TextMeshProUGUI _cabArmorText;
     [SerializeField] private TextMeshProUGUI _bodyArmorText;
     
@@ -22,19 +27,19 @@ public class VehicleStatsDisplayUI : MonoBehaviour
 
     [Header("Weapon Stats")]
     [SerializeField] private TextMeshProUGUI _weaponAngleText;
-    [SerializeField] private TextMeshProUGUI _weaponDamageText; // Выведет диапазон мин-макс
-    [SerializeField] private TextMeshProUGUI _weaponCritText;   // Новое: шанс и множитель крита
+    [SerializeField] private TextMeshProUGUI _weaponDamageText; 
+    [SerializeField] private TextMeshProUGUI _weaponCritText;   
     [SerializeField] private TextMeshProUGUI _weaponFireRateText;
     [SerializeField] private TextMeshProUGUI _weaponRangeText;
-    [SerializeField] private TextMeshProUGUI _weaponBulletSpeedText; // Новое: скорость снаряда
+    [SerializeField] private TextMeshProUGUI _weaponBulletSpeedText; 
 
     private void Start()
     {
         GameObject vehicle = GameObject.FindGameObjectWithTag("Player");
-        if (vehicle != null) 
+        if (vehicle != null)
         {
             _stats = vehicle.GetComponent<VehicleStats>();
-            _fuel = vehicle.GetComponent<Fuel>(); 
+            _fuel = vehicle.GetComponent<Fuel>();
         }
     }
 
@@ -43,9 +48,15 @@ public class VehicleStatsDisplayUI : MonoBehaviour
         if (_stats == null) return;
 
         // 1. Здоровье
-        if (_healthText != null) _healthText.text = $"Здоровье: {_stats.MaxHealth}";
+        if (_healthText != null) _healthText.text = $"Макс. Здоровье: {_stats.MaxHealth}";
 
-        // 2. Броня 
+        // ТЕПЕРЬ ПЕРЕМЕННАЯ ОБЪЯВЛЕНА И ИСПОЛЬЗУЕТСЯ ПРАВИЛЬНО
+        if (_currentHealthText != null && _playerProfile != null)
+        {
+            _currentHealthText.text = $"Текущее Здоровье: {_playerProfile.currentHealth}";
+        }
+
+        // 2. Броня
         if (_cabArmorText != null)
         {
             float cabArmorPercent = (_stats.Cab != null ? _stats.Cab.armor : 0f);
@@ -90,21 +101,18 @@ public class VehicleStatsDisplayUI : MonoBehaviour
             _fuelConsumptionText.text = $"Коэфф. расхода: x{weightMultiplier:F2}";
         }
 
-        // 6. Оружие (Обновлено под новые параметры WeaponDataSO)
+        // 6. Оружие
         if (_stats.Weapon != null)
         {
-            // Вывод диапазона урона
             if (_weaponDamageText != null) 
                 _weaponDamageText.text = $"Урон: {_stats.Weapon.minDamage:F0} - {_stats.Weapon.maxDamage:F0}";
 
-            // Вывод критов (Шанс % и Множитель)
             if (_weaponCritText != null)
             {
                 float critChancePercent = _stats.Weapon.criticalHitChance * 100f;
                 _weaponCritText.text = $"Крит: {critChancePercent:F0}% (x{_stats.Weapon.criticalDamageMultiplier:F1})";
             }
 
-            // Вывод скорострельности в RPM[cite: 4]
             if (_weaponFireRateText != null) 
                 _weaponFireRateText.text = $"Скорострельность: {_stats.Weapon.fireRateRPM} RPM";
 
@@ -116,7 +124,6 @@ public class VehicleStatsDisplayUI : MonoBehaviour
         }
         else
         {
-            // Обнуление, если оружие не установлено
             if (_weaponDamageText != null) _weaponDamageText.text = "Урон: 0";
             if (_weaponCritText != null) _weaponCritText.text = "Крит: 0";
             if (_weaponFireRateText != null) _weaponFireRateText.text = "Скорострельность: 0";

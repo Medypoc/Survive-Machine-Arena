@@ -21,14 +21,8 @@ public class PlayerEquipmentLoader : MonoBehaviour
                 _playerProfile.equippedWeapon
             );
 
-            // Если у тебя здоровье зависит от деталей, стоит обновить его
-            Health health = GetComponent<Health>();
-            if (health != null)
-            {
-                health.maxHealth = stats.MaxHealth; // Подставь свою переменную из VehicleStats
-                health.currentHealth = health.maxHealth;
-                health.NotifyHealthChanged();
-            }
+            // МЫ ПОЛНОСТЬЮ УДАЛИЛИ БЛОК РАБОТЫ СО ЗДОРОВЬЕМ ОТСЮДА,
+            // так как PlayerPersistence уже сделал эту работу в Awake().
         }
     }
 }
