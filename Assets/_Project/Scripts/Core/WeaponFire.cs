@@ -3,6 +3,7 @@ using UnityEngine;
 public class WeaponFire : MonoBehaviour
 {
     private VehicleStats _stats;
+    private AudioSource _audioSource;
 
     [Header("References")]
     public Transform firePoint;
@@ -12,22 +13,32 @@ public class WeaponFire : MonoBehaviour
 
     private void Awake()
     {
-        // Находим компонент статов. Он гарантированно висит на корне каждой машины[cite: 8].
+        // Находим статы на корне машины
         _stats = GetComponentInParent<VehicleStats>();
         
+        // Кэшируем AudioSource для звуков выстрелов
+        _audioSource = GetComponent<AudioSource>();
+
         if (_stats == null)
         {
-            Debug.LogError($"WeaponFire на {gameObject.name} не нашел VehicleStats в родителях!");
+            Debug.LogError($"WeaponFire на {gameObject.name} не нашел VehicleStats!");
             return;
         }
 
-        // Проверяем тег именно того объекта, на котором висят статы[cite: 8].
+        // Если компонента звука нет, добавим его автоматически
+        if (_audioSource == null)
+        {
+            _audioSource = gameObject.AddComponent<AudioSource>();
+            _audioSource.playOnAwake = false;
+            _audioSource.spatialBlend = 0.5f; // Делаем звук частично объемным
+        }
+
         _isPlayer = _stats.CompareTag("Player");
     }
 
     private void Update()
     {
-        // Логика стрельбы для игрока[cite: 8]
+        // Игрок стреляет на ЛКМ
         if (_isPlayer && Input.GetMouseButton(0))
         {
             Shoot();
@@ -36,55 +47,43 @@ public class WeaponFire : MonoBehaviour
 
     public void Shoot()
     {
-        // Проверка кулдауна и наличия данных[cite: 8]
+        // Проверка кулдауна и наличия данных в VehicleStats_7.cs[cite: 2, 3]
         if (Time.time < _nextFireTime || _stats == null || _stats.Weapon == null) return;
 
         var weapon = _stats.Weapon;
 
-        // 1. Расчет критического урона по твоей новой формуле[cite: 8]
+        // 1. АУДИО: Берем fireSound и volume из WeaponDataSO
+        if (_audioSource != null && weapon.fireSound != null)
+        {
+            // Небольшой разброс высоты звука, чтобы стрельба звучала живее
+            _audioSource.pitch = Random.Range(0.9f, 1.1f);
+            _audioSource.PlayOneShot(weapon.fireSound, weapon.volume);
+        }
+
+        // 2. УРОН: Расчет на основе данных оружия[cite: 2, 3]
         bool isCritical = Random.value < weapon.criticalHitChance;
-        float baseDamage;
+        float baseDamage = isCritical 
+            ? weapon.maxDamage * weapon.criticalDamageMultiplier 
+            : Random.Range(weapon.minDamage, weapon.maxDamage);
 
-        if (isCritical)
-        {
-            // Крит = Максимальный урон * Множитель из WeaponDataSO[cite: 8]
-            baseDamage = weapon.maxDamage * weapon.criticalDamageMultiplier;
-        }
-        else
-        {
-            // Обычный выстрел = Рандом в диапазоне[cite: 8]
-            baseDamage = Random.Range(weapon.minDamage, weapon.maxDamage);
-        }
-
-        // Учитываем общие усиления урона машины[cite: 8]
         float finalDamage = baseDamage * _stats.DamageMultiplier;
 
-        // 2. Спавн снаряда[cite: 8]
+        // 3. СПАВН И НАСТРОЙКА СНАРЯДА
         if (weapon.bulletPrefab != null && firePoint != null)
         {
             GameObject bullet = Instantiate(weapon.bulletPrefab, firePoint.position, firePoint.rotation);
 
-            // --- НОВАЯ ЛОГИКА: УСТАНОВКА СЛОЯ СНАРЯДА ---
-            // Присваиваем слой в зависимости от того, кто стреляет.
-            // Убедитесь, что слои "PlayerProjectile" и "EnemyProjectile" созданы в Unity Editor.
+            // Установка слоев для фильтрации коллизий
             int playerProjectileLayer = LayerMask.NameToLayer("PlayerProjectile");
             int enemyProjectileLayer = LayerMask.NameToLayer("EnemyProjectile");
 
-            if (_isPlayer)
-            {
-                bullet.layer = playerProjectileLayer;
-            }
-            else
-            {
-                bullet.layer = enemyProjectileLayer;
-            }
-            // --------------------------------------------
+            bullet.layer = _isPlayer ? playerProjectileLayer : enemyProjectileLayer;
 
             Projectile projectileScript = bullet.GetComponent<Projectile>();
             
             if (projectileScript != null)
             {
-                // ПЕРЕДАЕМ ВЛАДЕЛЬЦА: используем _stats.gameObject вместо transform.root[cite: 8]
+                // Передаем корень машины как владельца, чтобы не попадать в себя[cite: 3, 4]
                 projectileScript.Launch(
                     finalDamage, 
                     weapon.bulletSpeed, 
@@ -95,7 +94,7 @@ public class WeaponFire : MonoBehaviour
             }
         }
 
-        // 3. Установка кулдауна на основе RPM из WeaponDataSO[cite: 8]
+        // 4. КУЛДАУН: Используем FireCooldown из WeaponDataSO[cite: 2, 3]
         _nextFireTime = Time.time + weapon.FireCooldown;
     }
 }

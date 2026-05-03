@@ -48,13 +48,13 @@ public class VehicleStatsDisplayUI : MonoBehaviour
         // 2. Броня 
         if (_cabArmorText != null)
         {
-            float cabArmorPercent = (_stats.Cab != null ? _stats.Cab.armor : 0f) * 100f;
+            float cabArmorPercent = (_stats.Cab != null ? _stats.Cab.armor : 0f);
             _cabArmorText.text = $"Броня кабины: {cabArmorPercent:F0}%";
         }
 
         if (_bodyArmorText != null)
         {
-            float bodyArmorPercent = (_stats.Body != null ? _stats.Body.armor : 0f) * 100f;
+            float bodyArmorPercent = (_stats.Body != null ? _stats.Body.armor : 0f);
             _bodyArmorText.text = $"Броня кузова: {bodyArmorPercent:F0}%";
         }
 

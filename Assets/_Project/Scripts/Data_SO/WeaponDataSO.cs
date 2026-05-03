@@ -25,6 +25,7 @@ public class WeaponDataSO : PartDataSO // НАСЛЕДОВАНИЕ: теперь
     [Header("Visuals")]
     public GameObject bulletPrefab;
     public AudioClip fireSound;
+    [Range(0, 1)] public float volume = 1f;
 
     // --- УМНЫЕ СВОЙСТВА ДЛЯ КОДА ---
 
