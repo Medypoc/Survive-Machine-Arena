@@ -2,7 +2,6 @@ using UnityEngine;
 
 namespace SurviveArena.Data 
 {
-    // 1. Создаем список уровней сложности
     public enum DifficultyTier 
     { 
         Simple, 
@@ -19,9 +18,15 @@ namespace SurviveArena.Data
         public float damageMultiplier = 1.0f;
         public Color visualTint = Color.white;
 
-        // --- БЛОК ДЛЯ ЭКОНОМИКИ ХРАНИТСЯ ЗДЕСЬ ---
         [Header("Rewards")]
         public DifficultyTier tier = DifficultyTier.Simple; 
         public float xpMultiplier = 1.0f; 
+        
+        // --- НОВЫЕ ПАРАМЕТРЫ ДЕНЕЖНОЙ НАГРАДЫ ---
+        [Tooltip("Минимальное количество денег за убийство")]
+        public int minMoneyReward = 0;
+        
+        [Tooltip("Максимальное количество денег за убийство")]
+        public int maxMoneyReward = 20;
     }
 }

@@ -16,15 +16,15 @@ MonoBehaviour:
   partSprite: {fileID: 21300000, guid: 1d9e072e42471f04d98bc04a15e14910, type: 3}
   vehicleClass: 1
   baseXP: 20
-  minDamage: 4
-  maxDamage: 10
+  minDamage: 3
+  maxDamage: 6
   criticalHitChance: 0.05
   criticalDamageMultiplier: 1.2
-  magazineSize: 30
+  magazineSize: 45
   reloadTime: 5
-  fireRateRPM: 300
-  bulletSpeed: 30
-  range: 15
+  fireRateRPM: 600
+  bulletSpeed: 40
+  range: 10
   rotationSpeed: 80
   bulletPrefab: {fileID: 3229579587623005231, guid: 717e00a8b83e2674e81b5ed4a4480cb8, type: 3}
   fireSound: {fileID: 8300000, guid: 16a245229ac3a4347ad9c21cd09efa44, type: 3}

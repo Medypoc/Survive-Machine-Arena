@@ -21,7 +21,7 @@ MonoBehaviour:
   criticalHitChance: 0.05
   criticalDamageMultiplier: 1.2
   magazineSize: 30
-  reloadTime: 5
+  reloadTime: 3
   fireRateRPM: 300
   bulletSpeed: 30
   range: 15

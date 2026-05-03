@@ -18,3 +18,5 @@ MonoBehaviour:
   visualTint: {r: 0, g: 1, b: 0.1698674, a: 1}
   tier: 0
   xpMultiplier: 1
+  minMoneyReward: 10
+  maxMoneyReward: 50

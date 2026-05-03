@@ -1,5 +1,5 @@
 using UnityEngine;
-using SurviveArena.Data; // Подставь свой namespace для данных
+using SurviveArena.Data; 
 
 public class EnemyReward : MonoBehaviour
 {
@@ -18,20 +18,16 @@ public class EnemyReward : MonoBehaviour
         
         _grantedXP = Mathf.RoundToInt((classBaseXP + partsXP) * modMult);
 
-        // 2. Считаем рандомные ДЕНЬГИ на основе тира сложности
-        DifficultyTier currentTier = modifier != null ? modifier.tier : DifficultyTier.Simple;
-        
-        switch (currentTier)
+        // 2. Считаем рандомные ДЕНЬГИ из модификатора
+        if (modifier != null)
         {
-            case DifficultyTier.Simple:
-                _grantedMoney = Random.Range(0, 21);
-                break;
-            case DifficultyTier.Medium:
-                _grantedMoney = Random.Range(25, 101);
-                break;
-            case DifficultyTier.Hard:
-                _grantedMoney = Random.Range(50, 201);
-                break;
+            // Берем диапазон напрямую из ScriptableObject (+1 нужен, чтобы включить максимум)
+            _grantedMoney = Random.Range(modifier.minMoneyReward, modifier.maxMoneyReward + 1);
+        }
+        else
+        {
+            // Дефолтное значение-заглушка на случай, если модификатор забыли передать
+            _grantedMoney = Random.Range(0, 21);
         }
     }
 
@@ -42,9 +38,7 @@ public class EnemyReward : MonoBehaviour
         {
             BattleManager.Instance.AddMatchRewards(_grantedXP, _grantedMoney);
             
-            // --- НОВАЯ СТРОЧКА: Показываем заработанный опыт перед удалением врага ---
             PopupManager.Instance?.ShowXP(transform.position, _grantedXP);
-            // -------------------------------------------------------------------------
         }
     }
 }

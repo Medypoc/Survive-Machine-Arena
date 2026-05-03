@@ -1125,7 +1125,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &279314269
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2749,7 +2749,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 652386823}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 817056622}
+        m_TargetAssemblyTypeName: GarageUI, Assembly-CSharp
+        m_MethodName: CloseConfirmation
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &652386823
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3272,7 +3284,6 @@ GameObject:
   - component: {fileID: 776170742}
   - component: {fileID: 776170741}
   - component: {fileID: 776170740}
-  - component: {fileID: 776170739}
   m_Layer: 5
   m_Name: StatsPanel
   m_TagString: Untagged
@@ -3314,34 +3325,6 @@ RectTransform:
   m_AnchoredPosition: {x: 460, y: 0}
   m_SizeDelta: {x: 400, y: 600}
   m_Pivot: {x: 0, y: 0.5}
---- !u!114 &776170739
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 776170737}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cc458d37224ef3f469bcec1e1fb3c12b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::VehicleStatsDisplayUI
-  _playerProfile: {fileID: 0}
-  _healthText: {fileID: 1362499327}
-  _currentHealthText: {fileID: 489031601}
-  _cabArmorText: {fileID: 1014081388}
-  _bodyArmorText: {fileID: 928885923}
-  _maxSpeedText: {fileID: 389596698}
-  _accelText: {fileID: 142863493}
-  _weightText: {fileID: 953743954}
-  _fuelCapacityText: {fileID: 1951503192}
-  _fuelConsumptionText: {fileID: 835485765}
-  _weaponAngleText: {fileID: 432072520}
-  _weaponDamageText: {fileID: 1269558933}
-  _weaponCritText: {fileID: 1676658924}
-  _weaponFireRateText: {fileID: 880273948}
-  _weaponRangeText: {fileID: 1719410040}
-  _weaponBulletSpeedText: {fileID: 426072550}
 --- !u!114 &776170740
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3569,6 +3552,9 @@ GameObject:
   m_Component:
   - component: {fileID: 817056620}
   - component: {fileID: 817056619}
+  - component: {fileID: 817056623}
+  - component: {fileID: 817056622}
+  - component: {fileID: 817056621}
   m_Layer: 0
   m_Name: HubManager
   m_TagString: Untagged
@@ -3603,6 +3589,64 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &817056621
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 817056618}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc458d37224ef3f469bcec1e1fb3c12b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VehicleStatsDisplayUI
+  _playerProfile: {fileID: 11400000, guid: 1db9c89793d644447a09438f5cc0cb9e, type: 2}
+  _healthText: {fileID: 1362499327}
+  _currentHealthText: {fileID: 489031601}
+  _cabArmorText: {fileID: 1014081388}
+  _bodyArmorText: {fileID: 928885923}
+  _maxSpeedText: {fileID: 389596698}
+  _accelText: {fileID: 142863493}
+  _weightText: {fileID: 953743954}
+  _fuelCapacityText: {fileID: 1951503192}
+  _fuelConsumptionText: {fileID: 835485765}
+  _weaponAngleText: {fileID: 432072520}
+  _weaponDamageText: {fileID: 1269558933}
+  _weaponCritText: {fileID: 1676658924}
+  _weaponFireRateText: {fileID: 880273948}
+  _weaponRangeText: {fileID: 1719410040}
+  _weaponBulletSpeedText: {fileID: 426072550}
+--- !u!114 &817056622
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 817056618}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e784205534ead045ab5ab39242a24d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GarageUI
+  _garageManager: {fileID: 817056623}
+  _vehicleStats: {fileID: 1345731816}
+  _confirmationPopup: {fileID: 279314268}
+  _confirmationText: {fileID: 1810202216}
+--- !u!114 &817056623
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 817056618}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: daa6c763a7f870e46923c0e362a8c36a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GarageManager
+  _playerProfile: {fileID: 11400000, guid: 1db9c89793d644447a09438f5cc0cb9e, type: 2}
+  _repairCostCoefficient: 0.5
 --- !u!1 &835485763
 GameObject:
   m_ObjectHideFlags: 0
@@ -4098,7 +4142,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 947629922}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 817056622}
+        m_TargetAssemblyTypeName: GarageUI, Assembly-CSharp
+        m_MethodName: OpenRepairConfirmation
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &947629922
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5713,7 +5769,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1456524012}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 817056622}
+        m_TargetAssemblyTypeName: GarageUI, Assembly-CSharp
+        m_MethodName: ConfirmRepair
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1456524012
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6314,7 +6382,7 @@ GameObject:
   - component: {fileID: 1723135741}
   - component: {fileID: 1723135740}
   m_Layer: 5
-  m_Name: DeclineText
+  m_Name: DeclineButtonText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6529,7 +6597,7 @@ GameObject:
   - component: {fileID: 1807018656}
   - component: {fileID: 1807018655}
   m_Layer: 5
-  m_Name: ConfirmText
+  m_Name: ConfirmButtonText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

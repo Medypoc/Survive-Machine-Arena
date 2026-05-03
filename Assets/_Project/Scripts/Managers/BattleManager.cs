@@ -10,11 +10,11 @@ public class BattleManager : MonoBehaviour
     public static BattleManager Instance;
 
     [Header("Scene Settings")]
-    [SerializeField] private string _hubSceneName = "HUB_Scene"; // Имя сцены Хаба
-    [SerializeField] private float _delayBeforeReturn = 3.0f;    // Задержка перед загрузкой
+    [SerializeField] private string _hubSceneName = "HUB_Scene"; 
+    [SerializeField] private float _delayBeforeReturn = 3.0f;    
 
     [Header("Match Economy")]
-    [SerializeField] private PlayerDataSO _playerProfile; // Ссылка на твой файл сохранения
+    [SerializeField] private PlayerDataSO _playerProfile; 
     private int _totalMatchXP = 0;
     private int _totalMatchMoney = 0;
 
@@ -29,7 +29,6 @@ public class BattleManager : MonoBehaviour
 
     private void Awake()
     {
-        // Базовая инициализация синглтона
         if (Instance == null) 
         {
             Instance = this;
@@ -42,7 +41,6 @@ public class BattleManager : MonoBehaviour
 
     private void Start()
     {
-        // Запускаем секундомер в начале боя
         _matchStartTime = Time.time;
     }
 
@@ -56,8 +54,21 @@ public class BattleManager : MonoBehaviour
     // Вызывается из Health.cs при смерти ИГРОКА
     public void OnPlayerDeath()
     {
-        Debug.Log("Поражение! Возврат в Хаб...");
-        // При поражении мы не выдаем награды (или можно выдать, скажем, 10% от собранного)
+        IsVictory = false;
+
+        // 1. Применяем штраф: деньги делим на 2. Модификаторы за ранг здесь не участвуют.
+        int finalMoney = _totalMatchMoney / 2;
+        int finalXP = _totalMatchXP; // Опыт выдаем полностью, но без множителя за ранг
+
+        // 2. Сохраняем утешительную награду в профиль
+        if (_playerProfile != null)
+        {
+            _playerProfile.money += finalMoney;
+            _playerProfile.AddExperience(finalXP);
+        }
+
+        Debug.Log($"Поражение! Возврат в Хаб... Получено опыта: {finalXP}, Денег: {finalMoney} (штраф 50%)");
+        
         StartCoroutine(ReturnToHubRoutine());
     }
 
@@ -65,6 +76,7 @@ public class BattleManager : MonoBehaviour
     public void OnVictory()
     {
         IsVictory = true;
+        
         // 1. Считаем время матча
         float matchDuration = Time.time - _matchStartTime;
         
