@@ -13,11 +13,6 @@ public class VehicleStats : MonoBehaviour
     public CabDataSO Cab => _cabData;
     public WeaponDataSO Weapon => _weaponData;
 
-    [Header("Visual Slots")]
-    [SerializeField] private VehiclePartSlot _bodySlot;
-    [SerializeField] private VehiclePartSlot _cabSlot;
-    [SerializeField] private VehiclePartSlot _weaponSlot;
-
     [Header("Calculated Stats")]
     public float Acceleration { get; private set; }
     public float SteeringSpeed { get; private set; }
@@ -53,23 +48,20 @@ public class VehicleStats : MonoBehaviour
         RefreshStats();
     }
 
-    // НОВЫЙ МЕТОД: Расчет урона для текущего оружия
+    // ОБНОВЛЕНО: Используем структуру damageStats
     public float CalculateAttackDamage(out bool isCritical)
     {
         isCritical = false;
         if (_weaponData == null) return 0f;
 
-        // Берем случайное значение из диапазона оружия
-        float baseDamage = UnityEngine.Random.Range(_weaponData.minDamage, _weaponData.maxDamage);
+        float baseDamage = UnityEngine.Random.Range(_weaponData.damageStats.minDamage, _weaponData.damageStats.maxDamage);
 
-        // Проверяем шанс критического удара
-        if (UnityEngine.Random.value <= _weaponData.criticalHitChance)
+        if (UnityEngine.Random.value <= _weaponData.damageStats.criticalHitChance)
         {
             isCritical = true;
-            baseDamage *= _weaponData.criticalDamageMultiplier;
+            baseDamage *= _weaponData.damageStats.criticalDamageMultiplier;
         }
 
-        // Применяем общий модификатор урона машины
         return baseDamage * DamageMultiplier;
     }
 
@@ -83,9 +75,6 @@ public class VehicleStats : MonoBehaviour
 
     public void RefreshStats()
     {
-        UpdateVisuals();
-
-        // Сброс и расчет базовых характеристик
         Acceleration = 0; 
         SteeringSpeed = 0; 
         Armor = 0; 
@@ -114,9 +103,6 @@ public class VehicleStats : MonoBehaviour
         SteeringSpeed *= _speedMult;
         MaxHealth = Mathf.RoundToInt(MaxHealth * _hpMult);
 
-        // УДАЛЕН КОНФЛИКТУЮЩИЙ БЛОК СИНХРОНИЗАЦИИ ЗДОРОВЬЯ
-
-        // Оставляем только синхронизацию топлива (если она тебе нужна здесь)
         if (_fuelComponent != null && _bodyData != null)
         {
             _fuelComponent.maxFuel = _bodyData.fuelCapacity; 
@@ -124,21 +110,20 @@ public class VehicleStats : MonoBehaviour
             _fuelComponent.NotifyFuelChanged();
         }
 
-        // Если нам нужно обновить UI максимального здоровья, вызываем метод из Health
         if (_healthComponent != null)
         {
-            // Передаем актуальный максимум, но НЕ ТРОГАЕМ currentHealth
             _healthComponent.maxHealth = MaxHealth; 
+            
+            // Если здоровье на нуле (например, при первом спавне машины), лечим до максимума.
+            // Позже, когда подключишь сохранения, тут можно брать данные из профиля.
+            if (_healthComponent.currentHealth <= 0) 
+            {
+                _healthComponent.currentHealth = MaxHealth;
+            }
+            
             _healthComponent.NotifyHealthChanged();
         }
 
         OnStatsChanged?.Invoke();
-    }
-
-    private void UpdateVisuals()
-    {
-        if (_cabData != null && _cabSlot != null) _cabSlot.UpdatePart(_cabData.partSprite, 10);
-        if (_bodyData != null && _bodySlot != null) _bodySlot.UpdatePart(_bodyData.partSprite, 5);
-        if (_weaponData != null && _weaponSlot != null) _weaponSlot.UpdatePart(_weaponData.partSprite, 15);
     }
 }

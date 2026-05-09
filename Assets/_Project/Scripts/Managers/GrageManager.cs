@@ -1,39 +1,92 @@
 using UnityEngine;
 using SurviveArena.Data;
 
-public class GarageManager : MonoBehaviour
+public class GarageManager : MonoBehaviour 
 {
-    [Header("Data Source")]
-    [SerializeField] private PlayerDataSO _playerProfile;
+    [Header("Системы и Данные")]
+    public PlayerDataSO playerProfile;
+    [SerializeField] private EconomyManager _economy;
+    [SerializeField] private GarageUI _garageUI;
+    [SerializeField] private CatalogGenerator _catalogGenerator;
+    [SerializeField] private RepairModule _repairModule;
 
-    [Header("Settings")]
-    [Tooltip("Стоимость ремонта за 1 единицу HP")]
-    [SerializeField] private float _repairCostCoefficient = 2f; 
+    [Header("Визуализация")]
+    // ТА САМАЯ ПЕРЕМЕННАЯ, КОТОРОЙ НЕ ХВАТАЛО
+    [SerializeField] private PlayerEquipmentLoader vehicleVisualizer; 
 
-    // Метод для расчета стоимости
-    public int GetRepairCost()
+    [Header("Панели Интерфейса")]
+    [SerializeField] private GameObject catalogPanel;
+    [SerializeField] private GameObject vehicleContent;
+    [SerializeField] private GameObject cabContent;
+    [SerializeField] private GameObject bodyContent;
+
+    private void Start() => CloseCatalog();
+
+    public void ShowVehicles() => SwitchContent(vehicleContent);
+
+    public void ShowCabs() 
     {
-        if (_playerProfile == null) return 0;
-
-        // Разница между Max и Current
-        float missingHP = _playerProfile.GetTotalMaxHealth() - _playerProfile.currentHealth; 
-        
-        // Округляем в большую сторону
-        return Mathf.CeilToInt(Mathf.Max(0, missingHP * _repairCostCoefficient));
+        if (_catalogGenerator != null) _catalogGenerator.GenerateCabs();
+        SwitchContent(cabContent);
     }
 
-    // Метод выполнения ремонта
-    public bool TryRepair()
+    public void ShowBodies() 
     {
-        int cost = GetRepairCost();
+        if (_catalogGenerator != null) _catalogGenerator.GenerateBodies();
+        SwitchContent(bodyContent);
+    }
 
-        if (_playerProfile.money >= cost && cost > 0)
+    public void CloseCatalog() => catalogPanel?.SetActive(false);
+
+    private void SwitchContent(GameObject activeContent)
+    {
+        if (catalogPanel != null) catalogPanel.SetActive(true);
+        vehicleContent?.SetActive(false);
+        cabContent?.SetActive(false);
+        bodyContent?.SetActive(false);
+        activeContent?.SetActive(true);
+    }
+
+    public void OnPartSelected(PartDataSO data) 
+    {
+        if (_economy.CanAfford(data.price)) 
         {
-            _playerProfile.money -= cost; // Списываем деньги
-            _playerProfile.currentHealth = _playerProfile.GetTotalMaxHealth(); // Восстанавливаем HP[cite: 9]
-            return true;
+            _garageUI.ShowConfirmation($"Купить {data.partName} за {data.price}$?", () => ConfirmPurchase(data));
+        }
+        else _garageUI.ShowNotification("Недостаточно средств!");
+    }
+
+    private void ConfirmPurchase(PartDataSO data) 
+    {
+        if (_economy.TrySpend(data.price))
+        {
+            if (data is BodyDataSO body) playerProfile.equippedBody = body;
+            else if (data is CabDataSO cab) playerProfile.equippedCab = cab;
+            else if (data is WeaponDataSO weapon) playerProfile.equippedWeapon = weapon;
+            
+            // Обновляем визуал машины
+            if (vehicleVisualizer != null) vehicleVisualizer.LoadVehicle();
+
+            _garageUI.ShowNotification($"{data.partName} установлен!");
+        }
+    }
+
+    public void RequestRepair()
+    {
+        if (!_repairModule.NeedsRepair())
+        {
+            _garageUI.ShowNotification("Машина уже исправна!");
+            return;
         }
 
-        return false;
+        int cost = _repairModule.GetRepairCost();
+        _garageUI.ShowConfirmation($"Починить за {cost}$?", () => 
+        {
+            if (_economy.TrySpend(cost))
+            {
+                _repairModule.RestoreHealth();
+                _garageUI.ShowNotification("Готово!");
+            }
+        });
     }
 }

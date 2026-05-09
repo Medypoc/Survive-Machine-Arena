@@ -11,7 +11,7 @@ public class WaveManager : MonoBehaviour
     [Header("Enemy Setup")]
     public GameObject enemyPrefab;
     public VehicleRegistry_SO registry;
-    public VehicleClass spawnClass;
+    public VehicleClassSO spawnClass;
     public EnemyModifierSO globalModifier;
 
     [Header("Wave Rules")]
@@ -90,19 +90,31 @@ public class WaveManager : MonoBehaviour
     {
         if (registry == null || enemyPrefab == null) return;
 
+        // 1. Выбираем случайные детали один раз (чтобы визуал и лут совпадали)
         registry.GetRandomParts(spawnClass, out var body, out var cab, out var weapon);
-        GameObject enemyObj = Instantiate(enemyPrefab, position, Quaternion.identity);
-        activeEnemies.Add(enemyObj);
 
-        VehicleStats stats = enemyObj.GetComponent<VehicleStats>();
-        if (stats != null)
+        // ИСПРАВЛЕНИЕ 1: Используем position вместо spawnPosition
+        GameObject newEnemy = Instantiate(enemyPrefab, position, Quaternion.identity);
+
+        // 2. Получаем загрузчик врага
+        EnemyEquipmentLoader loader = newEnemy.GetComponent<EnemyEquipmentLoader>();
+
+        if (loader != null)
         {
-            stats.LoadModules(body, cab, weapon);
-            if (globalModifier != null) 
-                stats.ApplyModifiers(globalModifier.healthMultiplier, globalModifier.speedMultiplier, globalModifier.damageMultiplier);
+            // ИСПРАВЛЕНИЕ 2: Передаем уже сгенерированные конкретные детали, а не просто класс
+            loader.GenerateAndLoadEnemy(spawnClass, body, cab, weapon); 
+        }
+        
+        activeEnemies.Add(newEnemy);
+
+        // 3. Применяем глобальные модификаторы волны (ХП, урон, скорость)
+        VehicleStats stats = newEnemy.GetComponent<VehicleStats>();
+        if (stats != null && globalModifier != null)
+        {
+            stats.ApplyModifiers(globalModifier.healthMultiplier, globalModifier.speedMultiplier, globalModifier.damageMultiplier);
         }
 
-        // Инициализация наград при смерти
-        enemyObj.GetComponent<EnemyReward>()?.InitializeRewards(50, body, cab, weapon, globalModifier);
+        // 4. Настраиваем награду (теперь из врага выпадет именно то, что на него надето!)
+        newEnemy.GetComponent<EnemyReward>()?.InitializeRewards(50, body, cab, weapon, globalModifier);
     }
 }

@@ -9,15 +9,33 @@ public abstract class PickUpItem : MonoBehaviour
     // Метод OnTriggerEnter2D — общий для всех предметов
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        // Проверяем тег у корня объекта (так как коллайдер на дочернем объекте)
-        if (collision.transform.root.CompareTag(targetTag))
+        Debug.Log($"[PickUp] В предмет въехал коллайдер: {collision.gameObject.name}");
+
+        Rigidbody2D rb = collision.attachedRigidbody;
+        
+        if (rb == null)
         {
-            // Пытаемся применить уникальный эффект предмета
-            // Передаем корень игрока, где лежат все компоненты (Health, Fuel)
-            if (OnPickedUp(collision.transform.root.gameObject))
+            Debug.LogWarning("[PickUp] ОШИБКА 1: У въехавшего объекта нет Rigidbody2D на корне!");
+            return;
+        }
+
+        Debug.Log($"[PickUp] Нашел корень: {rb.gameObject.name}, его тег: {rb.tag}");
+
+        if (rb.CompareTag(targetTag))
+        {
+            if (OnPickedUp(rb.gameObject))
             {
+                Debug.Log("[PickUp] УСПЕХ: Предмет подобран и применен!");
                 FinalizePickup();
             }
+            else
+            {
+                Debug.LogWarning($"[PickUp] ОШИБКА 3: OnPickedUp вернул false! Скорее всего на {rb.gameObject.name} нет скрипта Fuel или Health.");
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"[PickUp] ОШИБКА 2: Тег не совпал! Ждали '{targetTag}', а приехал '{rb.tag}'");
         }
     }
 

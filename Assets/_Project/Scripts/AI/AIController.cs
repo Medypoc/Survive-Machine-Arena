@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public enum AIState { Chasing, Orbiting, Reversing }
+public enum AIState { Chasing, Orbiting, Reversing, AntiFlanking }
 
 public class AIController : MonoBehaviour
 {
@@ -9,23 +9,24 @@ public class AIController : MonoBehaviour
     [SerializeField] private float _attackRange = 12f;
     [SerializeField] private float _safetyDistance = 6f;
 
+    [Header("Combat Tactics")]
+    [Tooltip("Если игрок находится под углом больше этого (в градусах), ИИ начнет защищать фланги")]
+    [SerializeField] private float _flankAngleThreshold = 65f; 
+    
     [Header("Obstacle Avoidance")]
     [SerializeField] private LayerMask _obstacleMask;
     [SerializeField] private float _detectionRange = 6f; 
     [SerializeField] private float _avoidanceForce = 1.2f;
 
-    [Header("Stuck Recovery (Система эвакуации)")]
-    [SerializeField] private float _stuckVelocityThreshold = 0.5f; // Порог скорости, ниже которой считаем, что стоим
-    [SerializeField] private float _stuckWaitTime = 1.0f;          // Сколько ждать до начала маневра
-    [SerializeField] private float _recoveryDuration = 1.5f;      // Сколько времени сдавать назад
+    [Header("Stuck Recovery")]
+    [SerializeField] private float _stuckVelocityThreshold = 0.5f; 
+    [SerializeField] private float _stuckWaitTime = 1.0f;          
+    [SerializeField] private float _recoveryDuration = 1.5f;      
     
     private float _stuckTimer;
     private float _recoveryTimer;
     private bool _isRecovering;
-    private float _recoverySteerDirection; // В какую сторону крутить руль при отъезде
-
-    [Header("Movement Tuning")]
-    [SerializeField] private float _minGasForTurn = 0.4f;      
+    private float _recoverySteerDirection; 
 
     private VehicleMovement _movement;
     private Rigidbody2D _rb;
@@ -41,8 +42,7 @@ public class AIController : MonoBehaviour
         _movement = GetComponent<VehicleMovement>();
         _rb = GetComponent<Rigidbody2D>();
         _stats = GetComponent<VehicleStats>();
-        _weaponFire = GetComponentInChildren<WeaponFire>();
-        _weaponController = GetComponentInChildren<WeaponController>();
+        // ВНИМАНИЕ: Мы больше не ищем пушку в Awake, так как она спавнится динамически позже
     }
 
     private void Start()
@@ -59,79 +59,52 @@ public class AIController : MonoBehaviour
             return; 
         }
 
-        float distance = Vector2.Distance(transform.position, _playerTarget.position);
+        Vector2 dirToPlayer = _playerTarget.position - transform.position;
+        float distance = dirToPlayer.magnitude;
         
-        // 1. Проверяем, не застряли ли мы
+        float angleToPlayer = Vector2.SignedAngle(transform.up, dirToPlayer);
+
         CheckIfStuck();
 
-        // 2. Если мы в процессе эвакуации — выполняем маневр отъезда
         if (_isRecovering)
         {
             ExecuteRecovery();
         }
         else
         {
-            // 3. Обычная логика состояний
-            UpdateAIState(distance);
-            ExecuteState();
+            ThinkAndChooseState(distance, angleToPlayer);
+            ExecuteState(distance, angleToPlayer);
         }
 
+        // --- НОВАЯ ЛОГИКА ОРУЖИЯ ---
+        UpdateWeaponTarget();
         HandleCombat(distance);
     }
 
-    private void CheckIfStuck()
+    private void ThinkAndChooseState(float distance, float angleToPlayer)
     {
-        if (_isRecovering) return;
+        if (Mathf.Abs(angleToPlayer) > _flankAngleThreshold && distance < _attackRange)
+        {
+            _currentState = AIState.AntiFlanking;
+            return;
+        }
 
-        // Если ИИ пытается ехать (gas != 0), но скорость машины слишком мала
-        if (_rb.linearVelocity.magnitude < _stuckVelocityThreshold)
-        {
-            _stuckTimer += Time.fixedDeltaTime;
-            if (_stuckTimer >= _stuckWaitTime)
-            {
-                StartRecovery();
-            }
-        }
-        else
-        {
-            _stuckTimer = 0f;
-        }
+        if (distance > _attackRange) 
+            _currentState = AIState.Chasing;
+        else if (distance < _safetyDistance) 
+            _currentState = AIState.Reversing;
+        else 
+            _currentState = AIState.Orbiting;
     }
 
-    private void StartRecovery()
-    {
-        _isRecovering = true;
-        _recoveryTimer = _recoveryDuration;
-        _stuckTimer = 0f;
-
-        // Определяем, в какую сторону крутить руль, чтобы выехать
-        // Пускаем лучи: если препятствие справа — рулим влево при отъезде назад
-        RaycastHit2D leftHit = Physics2D.Raycast(transform.position, Quaternion.Euler(0, 0, 30) * transform.up, _detectionRange, _obstacleMask);
-        _recoverySteerDirection = (leftHit.collider != null) ? -1f : 1f;
-    }
-
-    private void ExecuteRecovery()
-    {
-        _recoveryTimer -= Time.fixedDeltaTime;
-
-        // Сдаем назад и крутим руль
-        _movement.Move(-0.7f, _recoverySteerDirection, false);
-
-        if (_recoveryTimer <= 0)
-        {
-            _isRecovering = false;
-        }
-    }
-
-    // --- Дальнейшая логика остается почти без изменений, но используем DriveWithAvoidance ---
-
-    private void ExecuteState()
+    private void ExecuteState(float distance, float angleToPlayer)
     {
         switch (_currentState)
         {
             case AIState.Chasing:
                 DriveWithAvoidance(_playerTarget.position, 1f);
                 break;
+            
             case AIState.Orbiting:
                 _orbitAngle += Time.fixedDeltaTime * 0.5f;
                 Vector2 orbitPos = (Vector2)_playerTarget.position + new Vector2(
@@ -140,8 +113,14 @@ public class AIController : MonoBehaviour
                 );
                 DriveWithAvoidance(orbitPos, 0.8f);
                 break;
+            
             case AIState.Reversing:
                 DriveWithAvoidance(_playerTarget.position, -0.6f);
+                break;
+
+            case AIState.AntiFlanking:
+                float steerDirection = Mathf.Sign(angleToPlayer); 
+                _movement.Move(-0.8f, steerDirection, false);
                 break;
         }
     }
@@ -152,7 +131,7 @@ public class AIController : MonoBehaviour
 
         if (Mathf.Abs(avoidanceSteer) > 0.1f)
         {
-            _movement.Move(gasMultiplier * 0.7f, avoidanceSteer * _avoidanceForce, false);
+            _movement.Move(gasMultiplier * 0.4f, avoidanceSteer * _avoidanceForce, false);
         }
         else
         {
@@ -163,9 +142,11 @@ public class AIController : MonoBehaviour
     private float GetAvoidanceSteer()
     {
         float steer = 0f;
-        RaycastHit2D centerHit = Physics2D.Raycast(transform.position, transform.up, _detectionRange, _obstacleMask);
-        RaycastHit2D leftHit = Physics2D.Raycast(transform.position, Quaternion.Euler(0, 0, 35) * transform.up, _detectionRange, _obstacleMask);
-        RaycastHit2D rightHit = Physics2D.Raycast(transform.position, Quaternion.Euler(0, 0, -35) * transform.up, _detectionRange, _obstacleMask);
+        float dynamicRange = _detectionRange + (_rb.linearVelocity.magnitude * 0.2f);
+
+        RaycastHit2D centerHit = Physics2D.Raycast(transform.position, transform.up, dynamicRange, _obstacleMask);
+        RaycastHit2D leftHit = Physics2D.Raycast(transform.position, Quaternion.Euler(0, 0, 35) * transform.up, dynamicRange * 0.8f, _obstacleMask);
+        RaycastHit2D rightHit = Physics2D.Raycast(transform.position, Quaternion.Euler(0, 0, -35) * transform.up, dynamicRange * 0.8f, _obstacleMask);
 
         if (leftHit.collider != null) steer -= 1f;
         if (rightHit.collider != null) steer += 1f;
@@ -181,16 +162,38 @@ public class AIController : MonoBehaviour
         float steerInput = Mathf.Clamp(angle / (_stats != null ? _stats.SteeringSpeed : 45f), -1f, 1f);
 
         float gasInput = gasMultiplier;
-        if (Mathf.Abs(angle) > 45f && gasMultiplier > 0) gasInput = _minGasForTurn;
+        if (Mathf.Abs(angle) > 30f && gasMultiplier > 0) gasInput = 0.5f; 
 
         _movement.Move(gasInput, steerInput, false);
     }
 
-    private void UpdateAIState(float distance)
+    private void CheckIfStuck()
     {
-        if (distance > _attackRange + 2f) _currentState = AIState.Chasing;
-        else if (distance < _safetyDistance) _currentState = AIState.Reversing;
-        else _currentState = AIState.Orbiting;
+        if (_isRecovering) return;
+
+        if (_rb.linearVelocity.magnitude < _stuckVelocityThreshold)
+        {
+            _stuckTimer += Time.fixedDeltaTime;
+            if (_stuckTimer >= _stuckWaitTime) StartRecovery();
+        }
+        else _stuckTimer = 0f;
+    }
+
+    private void StartRecovery()
+    {
+        _isRecovering = true;
+        _recoveryTimer = _recoveryDuration;
+        _stuckTimer = 0f;
+
+        RaycastHit2D leftHit = Physics2D.Raycast(transform.position, Quaternion.Euler(0, 0, 30) * transform.up, _detectionRange, _obstacleMask);
+        _recoverySteerDirection = (leftHit.collider != null) ? -1f : 1f;
+    }
+
+    private void ExecuteRecovery()
+    {
+        _recoveryTimer -= Time.fixedDeltaTime;
+        _movement.Move(-0.8f, _recoverySteerDirection, false);
+        if (_recoveryTimer <= 0) _isRecovering = false;
     }
 
     private void FindPlayer()
@@ -199,13 +202,37 @@ public class AIController : MonoBehaviour
         if (playerObj != null && playerObj.activeInHierarchy)
         {
             _playerTarget = playerObj.transform;
-            if (_weaponController != null) _weaponController.target = _playerTarget;
+            // УДАЛЕНО: прямое присвоение target контроллеру пушки
+        }
+    }
+
+    // --- НОВЫЙ МЕТОД: Постоянно передает координаты Игрока в пушку ---
+    private void UpdateWeaponTarget()
+    {
+        if (_playerTarget == null) return;
+
+        // Динамически ищем контроллер, если он еще не найден
+        if (_weaponController == null)
+        {
+            _weaponController = GetComponentInChildren<WeaponController>();
+        }
+
+        if (_weaponController != null)
+        {
+            _weaponController.SetTargetPoint(_playerTarget.position);
         }
     }
 
     private void HandleCombat(float distance)
     {
-        if (_weaponFire == null || _weaponFire.firePoint == null || _stats.Weapon == null || distance > _stats.Weapon.range) return;
+        // Динамически ищем скрипт стрельбы
+        if (_weaponFire == null)
+        {
+            _weaponFire = GetComponentInChildren<WeaponFire>();
+            if (_weaponFire == null) return; 
+        }
+
+        if (_stats == null || _stats.Weapon == null || _weaponFire.firePoint == null || distance > _stats.Weapon.shootingStats.range) return;
 
         Vector2 dirToTarget = (_playerTarget.position - _weaponFire.firePoint.position).normalized;
         float angleToTarget = Vector2.Angle(_weaponFire.firePoint.up, dirToTarget);

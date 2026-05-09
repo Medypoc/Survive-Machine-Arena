@@ -12,20 +12,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0b319081d35095488c32d620704c054, type: 3}
   m_Name: Gun_1
   m_EditorClassIdentifier: Assembly-CSharp::WeaponDataSO
-  partName: Gun_01
+  partName: Gun_1
   partSprite: {fileID: 21300000, guid: 577dfd8ce3eb93748aebc4fd15edcb87, type: 3}
-  vehicleClass: 1
+  requiredClass: {fileID: 11400000, guid: 7e6c80d72842f7f4781e2cc01ca3c01f, type: 2}
   baseXP: 5
-  minDamage: 4
-  maxDamage: 10
-  criticalHitChance: 0.05
-  criticalDamageMultiplier: 1.2
-  magazineSize: 30
-  reloadTime: 3
-  fireRateRPM: 300
-  bulletSpeed: 30
-  range: 15
-  rotationSpeed: 100
+  price: 100
+  weaponPrefab: {fileID: 5376694142887190723, guid: efd66ec2beeb46843b5e6b27a5bbc26a, type: 3}
   bulletPrefab: {fileID: 3229579587623005231, guid: 717e00a8b83e2674e81b5ed4a4480cb8, type: 3}
-  fireSound: {fileID: 8300000, guid: 16a245229ac3a4347ad9c21cd09efa44, type: 3}
-  volume: 0.1
+  damageStats:
+    minDamage: 4
+    maxDamage: 10
+    criticalHitChance: 0.1
+    criticalDamageMultiplier: 1.2
+  shootingStats:
+    magazineSize: 30
+    reloadTime: 3
+    fireRateRPM: 300
+    bulletSpeed: 30
+    range: 15
+    rotationSpeed: 100
+  visuals:
+    fireSound: {fileID: 8300000, guid: 16a245229ac3a4347ad9c21cd09efa44, type: 3}
+    muzzleFlashPrefab: {fileID: 1577033425095513352, guid: dfa65033cf934fb42af551abae3f72f2, type: 3}

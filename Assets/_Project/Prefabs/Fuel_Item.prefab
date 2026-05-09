@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 2780852515783846971}
   - component: {fileID: 7164513172613277250}
   - component: {fileID: 7539078821774144741}
-  m_Layer: 12
+  m_Layer: 11
   m_Name: Fuel_Item
   m_TagString: Item
   m_Icon: {fileID: 0}
@@ -151,5 +151,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5044bc0880992594f84ff1f6722f51fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FuelItem
-  fuelAmount: 30
   pickupEffect: {fileID: 0}
+  targetTag: Player
+  fuelAmount: 30

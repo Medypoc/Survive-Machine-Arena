@@ -29,7 +29,7 @@ namespace SurviveArena.Core
             }
 
             // Передаем цвет в VehicleVisual[cite: 6]
-            VehicleVisual visual = GetComponent<VehicleVisual>();
+            VehicleAssembler visual = GetComponent<VehicleAssembler>();
             if (visual != null)
             {
                 visual.ApplyTint(modifier.visualTint);

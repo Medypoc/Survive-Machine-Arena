@@ -7,7 +7,6 @@ public class VehicleStatsDisplayUI : MonoBehaviour
     private Fuel _fuel; 
 
     [Header("Data Sources")]
-    // МЫ ДОБАВИЛИ ЭТУ СТРОКУ:
     [SerializeField] private PlayerDataSO _playerProfile; 
 
     [Header("Health & Armor")]
@@ -48,12 +47,11 @@ public class VehicleStatsDisplayUI : MonoBehaviour
         if (_stats == null) return;
 
         // 1. Здоровье
-        if (_healthText != null) _healthText.text = $"Макс. Здоровье: {_stats.MaxHealth}";
+        if (_healthText != null) _healthText.text = $"Макс. Здоровье: {_stats.MaxHealth:F0}";
 
-        // ТЕПЕРЬ ПЕРЕМЕННАЯ ОБЪЯВЛЕНА И ИСПОЛЬЗУЕТСЯ ПРАВИЛЬНО
         if (_currentHealthText != null && _playerProfile != null)
         {
-            _currentHealthText.text = $"Текущее Здоровье: {_playerProfile.currentHealth}";
+            _currentHealthText.text = $"Текущее Здоровье: {_playerProfile.currentHealth:F0}";
         }
 
         // 2. Броня
@@ -72,6 +70,7 @@ public class VehicleStatsDisplayUI : MonoBehaviour
         // 3. Передвижение
         if (_maxSpeedText != null)
         {
+            // Убедитесь, что baseSpeed все еще есть в CabDataSO, иначе можно взять другую скорость
             float maxSpeed = _stats.Cab != null ? _stats.Cab.baseSpeed : 0f;
             _maxSpeedText.text = $"Макс. скорость: {maxSpeed}";
         }
@@ -101,26 +100,26 @@ public class VehicleStatsDisplayUI : MonoBehaviour
             _fuelConsumptionText.text = $"Коэфф. расхода: x{weightMultiplier:F2}";
         }
 
-        // 6. Оружие
+        // 6. Оружие (ОБНОВЛЕНЫ ПУТИ К damageStats И shootingStats)
         if (_stats.Weapon != null)
         {
             if (_weaponDamageText != null) 
-                _weaponDamageText.text = $"Урон: {_stats.Weapon.minDamage:F0} - {_stats.Weapon.maxDamage:F0}";
+                _weaponDamageText.text = $"Урон: {_stats.Weapon.damageStats.minDamage:F0} - {_stats.Weapon.damageStats.maxDamage:F0}";
 
             if (_weaponCritText != null)
             {
-                float critChancePercent = _stats.Weapon.criticalHitChance * 100f;
-                _weaponCritText.text = $"Крит: {critChancePercent:F0}% (x{_stats.Weapon.criticalDamageMultiplier:F1})";
+                float critChancePercent = _stats.Weapon.damageStats.criticalHitChance * 100f;
+                _weaponCritText.text = $"Крит: {critChancePercent:F0}% (x{_stats.Weapon.damageStats.criticalDamageMultiplier:F1})";
             }
 
             if (_weaponFireRateText != null) 
-                _weaponFireRateText.text = $"Скорострельность: {_stats.Weapon.fireRateRPM} RPM";
+                _weaponFireRateText.text = $"Скорострельность: {_stats.Weapon.shootingStats.fireRateRPM} RPM";
 
             if (_weaponRangeText != null) 
-                _weaponRangeText.text = $"Дальность: {_stats.Weapon.range}";
+                _weaponRangeText.text = $"Дальность: {_stats.Weapon.shootingStats.range}";
 
             if (_weaponBulletSpeedText != null)
-                _weaponBulletSpeedText.text = $"Скорость пули: {_stats.Weapon.bulletSpeed}";
+                _weaponBulletSpeedText.text = $"Скорость пули: {_stats.Weapon.shootingStats.bulletSpeed}";
         }
         else
         {

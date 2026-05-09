@@ -4,9 +4,9 @@ using SurviveArena.Data;
 [CreateAssetMenu(fileName = "NewPlayerProfile", menuName = "SurviveArena/Player Profile")]
 public class PlayerDataSO : ScriptableObject
 {
-    // Базовые константы пустой машины
-    private const float BASE_HEALTH = 100f;
-    private const float BASE_FUEL = 0f; // Базовое значение топлива (можно изменить по необходимости)
+    // --- НОВОЕ: Ссылка на базовый тип машины ---
+    [Header("Current Vehicle Type")]
+    public VehicleClassSO selectedVehicleClass; 
 
     [Header("Economy & Progression")]
     public int money;
@@ -26,10 +26,10 @@ public class PlayerDataSO : ScriptableObject
 
     public float GetTotalMaxHealth()
     {
-        float totalMaxHealth = BASE_HEALTH;
+        // Берем базу не из константы, а из типа машины
+        float totalMaxHealth = selectedVehicleClass != null ? selectedVehicleClass.baseHealth : 100f;
         
-        // Предполагается, что в BodyDataSO и CabDataSO есть поле healthadditional или аналогичное
-        if (equippedBody != null) totalMaxHealth += equippedBody.additionalHP; 
+        if (equippedBody != null) totalMaxHealth += equippedBody.additionalHP;
         if (equippedCab != null) totalMaxHealth += equippedCab.additionalHP;
 
         return totalMaxHealth;
@@ -37,10 +37,11 @@ public class PlayerDataSO : ScriptableObject
 
     public float GetTotalMaxFuel()
     {
-        float totalMaxFuel = BASE_FUEL;
+        // Берем базовое топливо из типа машины
+        float totalMaxFuel = selectedVehicleClass != null ? selectedVehicleClass.baseFuel : 0f;
         
-        // Предполагается, что вместимость бака зависит от кабины
-        if (equippedCab != null) totalMaxFuel += equippedBody.fuelCapacity; 
+        // Топливо находится в кузове (BodyDataSO), поэтому проверяем именно его
+        if (equippedBody != null) totalMaxFuel += equippedBody.fuelCapacity; 
 
         return totalMaxFuel;
     }

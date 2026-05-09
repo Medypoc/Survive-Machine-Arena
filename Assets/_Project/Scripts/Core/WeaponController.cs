@@ -4,56 +4,40 @@ using SurviveArena.Data;
 public class WeaponController : MonoBehaviour
 {
     private VehicleStats _stats;
-    private Camera _cam;
-    
-    [Header("AI Settings")]
-    public Transform target; // Если заполнено, пушка следит за целью, а не за мышью
+    private Vector3 _targetPoint;
+    private bool _hasTarget;
 
     void Start()
     {
         _stats = GetComponentInParent<VehicleStats>();
-        _cam = Camera.main;
+    }
+
+    // Метод, который будут вызывать ИИ или Игрок
+    public void SetTargetPoint(Vector3 worldPoint)
+    {
+        _targetPoint = worldPoint;
+        _hasTarget = true;
     }
 
     void Update()
     {
-        // 1. Проверка необходимых компонентов
-        if (_stats == null || _stats.Weapon == null) return;
+        // Если пушка еще не инициализирована или нет цели — не вращаем
+        if (_stats == null || _stats.Weapon == null || !_hasTarget) return;
 
-        Vector2 direction;
+        Vector2 direction = (Vector2)_targetPoint - (Vector2)transform.position;
 
-        // 2. Определение цели: приоритет у назначенного Transform (для ИИ), 
-        // затем проверка на игрока (для мыши)
-        if (target != null)
-        {
-            direction = (Vector2)target.position - (Vector2)transform.position;
-        }
-        else if (transform.root.CompareTag("Player"))
-        {
-            Vector3 mousePos = _cam.ScreenToWorldPoint(Input.mousePosition);
-            direction = (Vector2)mousePos - (Vector2)transform.position;
-        }
-        else 
-        {
-            // Если цели нет и это не игрок — ничего не делаем
-            return;
-        }
-
-        // 3. Вычисление целевого угла
-        // Atan2 возвращает угол в радианах, переводим в градусы. 
-        // -90f нужно, если спрайт пушки изначально смотрит вверх.
+        // Расчет целевого угла
         float targetWorldAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90f;
         Quaternion targetRotation = Quaternion.Euler(0, 0, targetWorldAngle);
 
-        // 4. Плавный поворот в сторону цели
-        // Используем rotationSpeed из настроек оружия
+        // Плавный поворот с использованием статов оружия
         transform.rotation = Quaternion.RotateTowards(
             transform.rotation, 
             targetRotation, 
-            _stats.Weapon.rotationSpeed * Time.deltaTime
+            _stats.Weapon.shootingStats.rotationSpeed * Time.deltaTime 
         );
 
-        // 5. Ограничение угла поворота относительно кабины
+        // Ограничение угла (лимиты кабины)
         ApplyRotationLimit();
     }
 

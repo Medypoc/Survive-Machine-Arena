@@ -1,2 +1,27 @@
 fileFormatVersion: 2
 guid: cc458d37224ef3f469bcec1e1fb3c12b
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - _playerProfile: {fileID: 11400000, guid: 1db9c89793d644447a09438f5cc0cb9e, type: 2}
+  - _healthText: {instanceID: 0}
+  - _currentHealthText: {instanceID: 0}
+  - _cabArmorText: {instanceID: 0}
+  - _bodyArmorText: {instanceID: 0}
+  - _maxSpeedText: {instanceID: 0}
+  - _accelText: {instanceID: 0}
+  - _weightText: {instanceID: 0}
+  - _fuelCapacityText: {instanceID: 0}
+  - _fuelConsumptionText: {instanceID: 0}
+  - _weaponAngleText: {instanceID: 0}
+  - _weaponDamageText: {instanceID: 0}
+  - _weaponCritText: {instanceID: 0}
+  - _weaponFireRateText: {instanceID: 0}
+  - _weaponRangeText: {instanceID: 0}
+  - _weaponBulletSpeedText: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

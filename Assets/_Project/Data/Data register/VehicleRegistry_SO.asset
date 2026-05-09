@@ -13,23 +13,23 @@ MonoBehaviour:
   m_Name: VehicleRegistry_SO
   m_EditorClassIdentifier: Assembly-CSharp::VehicleRegistry_SO
   classes:
-  - vehicleClass: 0
+  - vehicleClass: {fileID: 0}
     availableBodies: []
     availableCabs: []
     availableWeapons: []
-  - vehicleClass: 1
+  - vehicleClass: {fileID: 11400000, guid: 7e6c80d72842f7f4781e2cc01ca3c01f, type: 2}
     availableBodies:
     - {fileID: 11400000, guid: e5f7b29325637cb44820c924dc3579a5, type: 2}
     - {fileID: 11400000, guid: 338f39d4047785347bccabf505477364, type: 2}
     - {fileID: 11400000, guid: 812af2358dfd40f4f8e62ba4d98aa606, type: 2}
     availableCabs:
-    - {fileID: 11400000, guid: 0ad4b9a5577cd814f810c3018e80a4c3, type: 2}
-    - {fileID: 11400000, guid: c93feb3e39654cc4db96f0bbe934a625, type: 2}
-    - {fileID: 11400000, guid: 647d4220f2f02db4f8d7fa4c1b4949c2, type: 2}
+    - {fileID: 11400000, guid: 8d7ea736a36ca8d4ebd736ff2c024880, type: 2}
+    - {fileID: 11400000, guid: 6a51932a01617444f9f9fba267b76725, type: 2}
+    - {fileID: 11400000, guid: 33af644e4e175d34dbff3e1cd696b68c, type: 2}
     availableWeapons:
     - {fileID: 11400000, guid: 617755639a4a4914486b5a8c50189793, type: 2}
     - {fileID: 11400000, guid: 4a39dc0a682576347a1c8cdb532f2264, type: 2}
-  - vehicleClass: 2
+  - vehicleClass: {fileID: 0}
     availableBodies: []
     availableCabs: []
     availableWeapons: []
